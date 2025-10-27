@@ -21,18 +21,18 @@ type Payload struct {
 	Data    any
 }
 
-func GetTimestamp() time.Time {
+func getTimestamp() time.Time {
 	return time.Now()
 }
 
-func WriteJSON(w http.ResponseWriter, status int, message string, data any) error {
+func writeJSON(w http.ResponseWriter, status int, message string, data any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(NewResponse{
 		Status:    status,
 		Message:   message,
 		Data:      data,
-		Timestamp: GetTimestamp(),
+		Timestamp: getTimestamp(),
 	})
 }
 

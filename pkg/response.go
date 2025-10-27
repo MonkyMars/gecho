@@ -5,9 +5,9 @@ import (
 )
 
 func OK(w http.ResponseWriter, payload *NewResponse) error {
-	return WriteJSON(w, payload.Status, payload.Message, payload.Data)
+	return writeJSON(w, payload.Status, payload.Message, payload.Data)
 }
 
 func Err(w http.ResponseWriter, payload *NewResponse) error {
-	return WriteJSON(w, payload.Status, payload.Message, nil)
+	return writeJSON(w, payload.Status, payload.Message, nil)
 }
