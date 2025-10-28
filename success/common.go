@@ -15,7 +15,7 @@ func Success(w http.ResponseWriter) *utils.ResponseBuilder {
 // Created returns a ResponseBuilder for 201 Created responses
 // Use Send() to send the response with the default values
 func Created(w http.ResponseWriter) *utils.ResponseBuilder {
-	return utils.NewOK(w).WithMessage("Resource Created")
+	return utils.NewOK(w).WithStatus(http.StatusCreated).WithMessage("Resource Created")
 }
 
 // Accepted returns a ResponseBuilder for 202 Accepted responses
