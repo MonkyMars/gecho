@@ -2,6 +2,7 @@ package gecho
 
 import (
 	"github.com/MonkyMars/gecho/errors"
+	"github.com/MonkyMars/gecho/handlers"
 	"github.com/MonkyMars/gecho/success"
 	"github.com/MonkyMars/gecho/utils"
 )
@@ -22,8 +23,8 @@ var InternalServerError = errors.InternalServerError
 var ServiceUnavailable = errors.ServiceUnavailable
 
 // Exported Success Functions
-var Success = success.Success[any]
-var Created = success.Created[any]
+var Success = success.Success
+var Created = success.Created
 
 // Exported built-in handlers
-var Handlers = errors.NewHandlers()
+var Handlers = handlers.NewHandlers()
