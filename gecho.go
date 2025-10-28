@@ -2,13 +2,13 @@ package gecho
 
 import (
 	"github.com/MonkyMars/gecho/errors"
-	"github.com/MonkyMars/gecho/pkg"
 	"github.com/MonkyMars/gecho/success"
+	"github.com/MonkyMars/gecho/utils"
 )
 
 // Exported fluent API Functions
-var NewErr = pkg.NewErr
-var NewOK = pkg.NewOK
+var NewErr = utils.NewErr
+var NewOK = utils.NewOK
 
 // Exported Client Error Functions
 var BadRequest = errors.BadRequest
@@ -24,3 +24,6 @@ var ServiceUnavailable = errors.ServiceUnavailable
 // Exported Success Functions
 var Success = success.Success[any]
 var Created = success.Created[any]
+
+// Exported built-in handlers
+var Handlers = errors.NewHandlers()
