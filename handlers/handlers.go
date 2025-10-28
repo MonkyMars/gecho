@@ -1,9 +1,10 @@
-package errors
+package handlers
 
 import (
 	"fmt"
 	"net/http"
 
+	"github.com/MonkyMars/gecho/errors"
 	"github.com/MonkyMars/gecho/utils"
 )
 
@@ -16,7 +17,7 @@ func NewHandlers() *Handlers {
 func (h *Handlers) HandleMethod(w http.ResponseWriter, r *http.Request, intendedMethod string) *utils.ResponseBuilder {
 	method := r.Method
 	if method != intendedMethod {
-		return MethodNotAllowed(w).WithMessage(fmt.Sprintf("Method %s not allowed", method))
+		return errors.MethodNotAllowed(w).WithMessage(fmt.Sprintf("Method %s not allowed", method))
 	}
 
 	return nil
