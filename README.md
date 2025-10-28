@@ -176,7 +176,6 @@ func main() {
 - Built-in HTTP status code handlers
 - Method validation helpers
 - Manual response control with `.Send()`
-- Thread-safe response building
 
 ## Missing Features?
 If you find any features missing or have suggestions for improvements, please feel free to open an issue or submit a pull request!
