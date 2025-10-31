@@ -6,8 +6,14 @@ import (
 	"time"
 )
 
-const SUCCESS = true
-const FAILURE = false
+
+const NOT_FOUND_MESSAGE = "Resource not found"
+const INTERNAL_SERVER_ERROR_MESSAGE = "Internal server error"
+const SERVICE_UNAVAILABLE_MESSAGE = "Service unavailable"
+const BAD_REQUEST_MESSAGE = "Bad request"
+const UNAUTHORIZED_MESSAGE = "Unauthorized"
+const FORBIDDEN_MESSAGE = "Forbidden"
+const METHOD_NOT_ALLOWED_MESSAGE = "Method not allowed"
 
 // NewResponse is a struct that holds the response data for API responses
 type NewResponse struct {
@@ -37,4 +43,10 @@ func writeJSON(w http.ResponseWriter, status int, success bool, message string, 
 		Data:      data,
 		Timestamp: getTimestamp(),
 	})
+}
+
+func ExtractResponseBody[T any](resp *http.Response) (T, error) {
+	var result T
+	err := json.NewDecoder(resp.Body).Decode(&result)
+	return result, err
 }

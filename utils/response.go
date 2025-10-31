@@ -7,7 +7,7 @@ import (
 // ResponseBuilder provides a fluent interface for building responses
 type ResponseBuilder struct {
 	w        http.ResponseWriter
-	response *NewResponse
+	Response *NewResponse
 	isError  bool
 }
 
@@ -23,14 +23,14 @@ func NewErr(w http.ResponseWriter) *ResponseBuilder {
 
 // newResponseBuilder creates a ResponseBuilder with custom status and type
 func newResponseBuilder(w http.ResponseWriter, status int, isError bool) *ResponseBuilder {
-	success := SUCCESS
+	success := true
 	if isError {
-		success = FAILURE
+		success = false
 	}
 
 	return &ResponseBuilder{
 		w: w,
-		response: &NewResponse{
+		Response: &NewResponse{
 			Status:    status,
 			Success:   success,
 			Timestamp: getTimestamp(),
@@ -41,32 +41,30 @@ func newResponseBuilder(w http.ResponseWriter, status int, isError bool) *Respon
 
 // WithMessage sets the response message and returns builder for chaining
 func (rb *ResponseBuilder) WithMessage(message string) *ResponseBuilder {
-	rb.response.Message = message
+	rb.Response.Message = message
 	return rb
 }
 
 // WithData sets the response data and returns builder for chaining
 func (rb *ResponseBuilder) WithData(data any) *ResponseBuilder {
-	if !rb.isError {
-		rb.response.Data = data
-	}
+	rb.Response.Data = data
 	return rb
 }
 
 // WithStatus sets the HTTP status code and returns builder for chaining
 func (rb *ResponseBuilder) WithStatus(status int) *ResponseBuilder {
-	rb.response.Status = status
+	rb.Response.Status = status
 	return rb
 }
 
 // Send manually sends the response
 func (rb *ResponseBuilder) Send() error {
-	data := rb.response.Data
+	data := rb.Response.Data
 
 	if rb.isError {
 		data = nil
 	}
 
-	err := writeJSON(rb.w, rb.response.Status, rb.response.Success, rb.response.Message, data)
+	err := writeJSON(rb.w, rb.Response.Status, rb.Response.Success, rb.Response.Message, data)
 	return err
 }
