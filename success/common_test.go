@@ -26,14 +26,14 @@ func TestCorrectSuccessResponses(t *testing.T) {
 		if err != nil {
 			t.Errorf("Expected no error on ExtractResponseBody(), got %v", err)
 		}
-		if val.Status != http.StatusOK {
-			t.Errorf("Expected status %d, got %d", http.StatusOK, val.Status)
+		if val.Status() != http.StatusOK {
+			t.Errorf("Expected status %d, got %d", http.StatusOK, val.Status())
 		}
-		if val.Message != "Success" {
-			t.Errorf("Expected message 'Success', got '%s'", val.Message)
+		if val.Message() != "Success" {
+			t.Errorf("Expected message 'Success', got '%s'", val.Message())
 		}
-		if val.Data != nil {
-			t.Errorf("Expected nil data, got '%v'", val.Data)
+		if val.Data() != nil {
+			t.Errorf("Expected nil data, got '%v'", val.Data())
 		}
 	})
 
@@ -54,11 +54,11 @@ func TestCorrectSuccessResponses(t *testing.T) {
 		if err != nil {
 			t.Errorf("Expected no error on ExtractResponseBody(), got %v", err)
 		}
-		if val.Status != http.StatusCreated {
-			t.Errorf("Expected status %d, got %d", http.StatusCreated, val.Status)
+		if val.Status() != http.StatusCreated {
+			t.Errorf("Expected status %d, got %d", http.StatusCreated, val.Status())
 		}
-		if val.Message != "Resource Created" {
-			t.Errorf("Expected message 'Resource Created', got '%s'", val.Message)
+		if val.Message() != "Resource Created" {
+			t.Errorf("Expected message 'Resource Created', got '%s'", val.Message())
 		}
 	})
 
@@ -79,14 +79,14 @@ func TestCorrectSuccessResponses(t *testing.T) {
 		if err != nil {
 			t.Errorf("Expected no error on ExtractResponseBody(), got %v", err)
 		}
-		if val.Status != http.StatusAccepted {
-			t.Errorf("Expected status %d, got %d", http.StatusAccepted, val.Status)
+		if val.Status() != http.StatusAccepted {
+			t.Errorf("Expected status %d, got %d", http.StatusAccepted, val.Status())
 		}
-		if val.Message != "Accepted" {
-			t.Errorf("Expected message 'Accepted', got '%s'", val.Message)
+		if val.Message() != "Accepted" {
+			t.Errorf("Expected message 'Accepted', got '%s'", val.Message())
 		}
-		if val.Data != nil {
-			t.Errorf("Expected nil data, got '%v'", val.Data)
+		if val.Data() != nil {
+			t.Errorf("Expected nil data, got '%v'", val.Data())
 		}
 	})
 
@@ -107,14 +107,14 @@ func TestCorrectSuccessResponses(t *testing.T) {
 		if err != nil {
 			t.Errorf("Expected no error on ExtractResponseBody(), got %v", err)
 		}
-		if val.Status != http.StatusNoContent {
-			t.Errorf("Expected status %d, got %d", http.StatusNoContent, val.Status)
+		if val.Status() != http.StatusNoContent {
+			t.Errorf("Expected status %d, got %d", http.StatusNoContent, val.Status())
 		}
-		if val.Message != "No Content" {
-			t.Errorf("Expected message 'No Content', got '%s'", val.Message)
+		if val.Message() != "No Content" {
+			t.Errorf("Expected message 'No Content', got '%s'", val.Message())
 		}
-		if val.Data != nil {
-			t.Errorf("Expected nil data, got '%v'", val.Data)
+		if val.Data() != nil {
+			t.Errorf("Expected nil data, got '%v'", val.Data())
 		}
 	})
 }

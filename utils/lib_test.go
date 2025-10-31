@@ -27,17 +27,17 @@ func TestExtractResponseBody(t *testing.T) {
 		t.Errorf("Expected no error on ExtractResponseBody(), got %v", err)
 	}
 
-	if val.Status != http.StatusOK {
-		t.Errorf("Expected status %d, got %d", http.StatusOK, val.Status)
+	if val.Status() != http.StatusOK {
+		t.Errorf("Expected status %d, got %d", http.StatusOK, val.Status())
 	}
 
-	if val.Message != "Extract Test" {
-		t.Errorf("Expected message 'Extract Test', got '%s'", val.Message)
+	if val.Message() != "Extract Test" {
+		t.Errorf("Expected message 'Extract Test', got '%s'", val.Message())
 	}
 
-	dataMap, ok := val.Data.(map[string]any)
+	dataMap, ok := val.Data().(map[string]any)
 	if !ok || dataMap["extract"] != "test" {
-		t.Errorf("Expected data map with extract 'test', got '%v'", val.Data)
+		t.Errorf("Expected data map with extract 'test', got '%v'", val.Data())
 	}
 }
 
@@ -58,17 +58,17 @@ func TestWriteJson(t *testing.T) {
 		t.Errorf("Expected no error on ExtractResponseBody(), got %v", err)
 	}
 
-	if val.Status != http.StatusTeapot {
-		t.Errorf("Expected status %d, got %d", http.StatusTeapot, val.Status)
+	if val.Status() != http.StatusTeapot {
+		t.Errorf("Expected status %d, got %d", http.StatusTeapot, val.Status())
 	}
 
-	if val.Message != "I'm a teapot" {
-		t.Errorf("Expected message 'I'm a teapot', got '%s'", val.Message)
+	if val.Message() != "I'm a teapot" {
+		t.Errorf("Expected message 'I'm a teapot', got '%s'", val.Message())
 	}
 
-	dataMap, ok := val.Data.(map[string]any)
+	dataMap, ok := val.Data().(map[string]any)
 	if !ok || dataMap["tea"] != "yes" {
-		t.Errorf("Expected data map with tea 'yes', got '%v'", val.Data)
+		t.Errorf("Expected data map with tea 'yes', got '%v'", val.Data())
 	}
 }
 
@@ -86,20 +86,20 @@ func TestNewResponseBuilder(t *testing.T) {
 	w := httptest.NewRecorder()
 	responseBuilder := newResponseBuilder(w, http.StatusOK, false)
 
-	if responseBuilder.Response.Status != http.StatusOK {
-		t.Errorf("Expected status %d, got %d", http.StatusOK, responseBuilder.Response.Status)
+	if responseBuilder.Response().Status() != http.StatusOK {
+		t.Errorf("Expected status %d, got %d", http.StatusOK, responseBuilder.Response().Status())
 	}
-
-	if responseBuilder.Response.Success != true {
-		t.Errorf("Expected success to be true, got %v", responseBuilder.Response.Success)
+	
+	if responseBuilder.Response().Success() != true {
+		t.Errorf("Expected success to be true, got %v", responseBuilder.Response().Success())
 	}
 
 	if responseBuilder.isError != false {
 		t.Errorf("Expected isError to be false, got %v", responseBuilder.isError)
 	}
 
-	if responseBuilder.Response.Message != "" {
-		t.Errorf("Expected empty message, got '%s'", responseBuilder.Response.Message)
+	if responseBuilder.Response().Message() != "" {
+		t.Errorf("Expected empty message, got '%s'", responseBuilder.Response().Message())
 	}
 }
 

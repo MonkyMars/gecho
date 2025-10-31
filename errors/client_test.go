@@ -10,7 +10,7 @@ import (
 
 func TestBadRequest(t *testing.T) {
 	w := httptest.NewRecorder()
-	rb := BadRequest(w).WithMessage(utils.BAD_REQUEST_MESSAGE).WithData(map[string]string{"field": "invalid"})
+	rb := BadRequest(w).WithMessage(utils.BadRequestMessage).WithData(map[string]string{"field": "invalid"})
 
 	err := rb.Send()
 	if err != nil {
@@ -22,19 +22,19 @@ func TestBadRequest(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, resp.StatusCode)
 	}
 
-	if rb.Response.Message != utils.BAD_REQUEST_MESSAGE {
-		t.Errorf("Expected message '%s', got '%s'", utils.BAD_REQUEST_MESSAGE, rb.Response.Message)
+	if rb.Response().Message() != utils.BadRequestMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.BadRequestMessage, rb.Response().Message())
 	}
 
-	dataMap, ok := rb.Response.Data.(map[string]string)
+	dataMap, ok := rb.Response().Data().(map[string]string)
 	if !ok || dataMap["field"] != "invalid" {
-		t.Errorf("Expected data map with field 'invalid', got '%v'", rb.Response.Data)
+		t.Errorf("Expected data map with field 'invalid', got '%v'", rb.Response().Data())
 	}
 }
 
 func TestUnauthorized(t *testing.T) {
 	w := httptest.NewRecorder()
-	rb := Unauthorized(w).WithMessage(utils.UNAUTHORIZED_MESSAGE)
+	rb := Unauthorized(w).WithMessage(utils.UnauthorizedMessage)
 
 	err := rb.Send()
 	if err != nil {
@@ -46,14 +46,14 @@ func TestUnauthorized(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusUnauthorized, resp.StatusCode)
 	}
 
-	if rb.Response.Message != utils.UNAUTHORIZED_MESSAGE {
-		t.Errorf("Expected message '%s', got '%s'", utils.UNAUTHORIZED_MESSAGE, rb.Response.Message)
+	if rb.Response().Message() != utils.UnauthorizedMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.UnauthorizedMessage, rb.Response().Message())
 	}
 }
 
 func TestForbidden(t *testing.T) {
 	w := httptest.NewRecorder()
-	rb := Forbidden(w).WithMessage(utils.FORBIDDEN_MESSAGE)
+	rb := Forbidden(w).WithMessage(utils.ForbiddenMessage)
 
 	err := rb.Send()
 	if err != nil {
@@ -65,14 +65,14 @@ func TestForbidden(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusForbidden, resp.StatusCode)
 	}
 
-	if rb.Response.Message != utils.FORBIDDEN_MESSAGE {
-		t.Errorf("Expected message '%s', got '%s'", utils.FORBIDDEN_MESSAGE, rb.Response.Message)
+	if rb.Response().Message() != utils.ForbiddenMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.ForbiddenMessage, rb.Response().Message())
 	}
 }
 
 func TestNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
-	rb := NotFound(w).WithMessage(utils.NOT_FOUND_MESSAGE)
+	rb := NotFound(w).WithMessage(utils.NotFoundMessage)
 
 	err := rb.Send()
 	if err != nil {
@@ -84,14 +84,14 @@ func TestNotFound(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusNotFound, resp.StatusCode)
 	}
 
-	if rb.Response.Message != utils.NOT_FOUND_MESSAGE {
-		t.Errorf("Expected message '%s', got '%s'", utils.NOT_FOUND_MESSAGE, rb.Response.Message)
+	if rb.Response().Message() != utils.NotFoundMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.NotFoundMessage, rb.Response().Message())
 	}
 }
 
 func TestMethodNotAllowed(t *testing.T) {
 	w := httptest.NewRecorder()
-	rb := MethodNotAllowed(w).WithMessage(utils.METHOD_NOT_ALLOWED_MESSAGE)
+	rb := MethodNotAllowed(w).WithMessage(utils.MethodNotAllowedMessage)
 
 	err := rb.Send()
 	if err != nil {
@@ -103,7 +103,7 @@ func TestMethodNotAllowed(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusMethodNotAllowed, resp.StatusCode)
 	}
 
-	if rb.Response.Message != utils.METHOD_NOT_ALLOWED_MESSAGE {
-		t.Errorf("Expected message '%s', got '%s'", utils.METHOD_NOT_ALLOWED_MESSAGE, rb.Response.Message)
+	if rb.Response().Message() != utils.MethodNotAllowedMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.MethodNotAllowedMessage, rb.Response().Message())
 	}
 }
