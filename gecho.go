@@ -28,3 +28,6 @@ var Created = success.Created
 
 // Exported built-in handlers
 var Handlers = handlers.NewHandlers()
+
+// Logger
+var Logger = utils.Logger
