@@ -41,3 +41,10 @@ func MethodNotAllowed(w http.ResponseWriter) *utils.ResponseBuilder {
 	return utils.NewErr(w).WithStatus(http.StatusMethodNotAllowed).
 		WithMessage(utils.MethodNotAllowedMessage)
 }
+
+// Conflict returns a ResponseBuilder for 409 Conflict responses
+// Use Send() to send the response with the default values
+func Conflict(w http.ResponseWriter) *utils.ResponseBuilder {
+	return utils.NewErr(w).WithStatus(http.StatusConflict).
+		WithMessage(utils.ConflictMessage)
+}

@@ -13,6 +13,7 @@ const BadRequestMessage = "Bad request"
 const UnauthorizedMessage = "Unauthorized"
 const ForbiddenMessage = "Forbidden"
 const MethodNotAllowedMessage = "Method not allowed"
+const ConflictMessage = "Conflict"
 
 // NewResponse is a struct that holds the response data for API responses
 type NewResponse struct {
