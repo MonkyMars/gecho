@@ -31,7 +31,7 @@ func (h *Handlers) HandleLogging(next http.Handler) http.Handler {
 		wrapper := &responseWriter{ResponseWriter: w, statusCode: r.Response.StatusCode}
 		next.ServeHTTP(wrapper, r)
 
-		logger := utils.Logger()
+		logger := utils.GetLogger()
 
 		duration := time.Since(start)
 		if wrapper.statusCode >= 500 {

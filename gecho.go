@@ -30,5 +30,6 @@ var Created = success.Created
 var Handlers = handlers.NewHandlers()
 
 // Logger
-var Logger = utils.Logger
+var GetLogger = utils.GetLogger()
+var Logger = utils.Logger{}
 var InitializeLogger = utils.InitLogger

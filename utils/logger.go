@@ -5,10 +5,10 @@ import (
 	"os"
 )
 
-type logger struct{}
+type Logger struct{}
 
-func Logger() *logger {
-	return &logger{}
+func GetLogger() *Logger {
+	return &Logger{}
 }
 
 var (
@@ -33,9 +33,9 @@ var currentLevel uint
 // "warn" meaning only warnings and errors are shown
 // "error" meaning only errors are shown
 // If an invalid log level is provided, the function will panic
-func InitLogger(logLevel ...string) *logger {
+func InitLogger(logLevel ...string) *Logger {
 	if initialized {
-		return &logger{}
+		return &Logger{}
 	}
 
 	// Create default loggers that will be reconfigured later
@@ -58,10 +58,10 @@ func InitLogger(logLevel ...string) *logger {
 
 	initialized = true
 
-	return &logger{}
+	return &Logger{}
 }
 
-func (l *logger) Info(v ...any) {
+func (l *Logger) Info(v ...any) {
 	if !initialized {
 		panic("logger not initialized")
 	}
@@ -70,7 +70,7 @@ func (l *logger) Info(v ...any) {
 	}
 }
 
-func (l *logger) Warn(v ...any) {
+func (l *Logger) Warn(v ...any) {
 	if !initialized {
 		panic("logger not initialized")
 	}
@@ -79,7 +79,7 @@ func (l *logger) Warn(v ...any) {
 	}
 }
 
-func (l *logger) Err(v ...any) {
+func (l *Logger) Err(v ...any) {
 	if !initialized {
 		panic("logger not initialized")
 	}
