@@ -31,11 +31,11 @@ func (h *Handlers) HandleLogging(next http.Handler) http.Handler {
 		wrapper := &responseWriter{ResponseWriter: w, statusCode: r.Response.StatusCode}
 		next.ServeHTTP(wrapper, r)
 
-		logger := utils.GetLogger()
+		logger := utils.NewDefaultLogger()
 
 		duration := time.Since(start)
 		if wrapper.statusCode >= 500 {
-			logger.Err(
+			logger.Error(
 				"method", r.Method,
 				"path", r.URL.Path,
 				"status", wrapper.statusCode,

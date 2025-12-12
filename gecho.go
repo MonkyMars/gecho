@@ -29,7 +29,23 @@ var Created = success.Created
 // Exported built-in handlers
 var Handlers = handlers.NewHandlers()
 
-// Logger
-var GetLogger = utils.GetLogger()
-var Logger = utils.Logger{}
-var InitializeLogger = utils.InitLogger
+// Logger exports
+var NewLogger = utils.NewLogger
+var NewDefaultLogger = utils.NewDefaultLogger
+var DefaultLoggerConfig = utils.DefaultConfig
+var ParseLogLevel = utils.ParseLevel
+
+// Log levels
+var (
+	LogLevelDebug = utils.LevelDebug
+	LogLevelInfo  = utils.LevelInfo
+	LogLevelWarn  = utils.LevelWarn
+	LogLevelError = utils.LevelError
+	LogLevelFatal = utils.LevelFatal
+)
+
+// Log formats
+var (
+	LogFormatText = utils.FormatText
+	LogFormatJSON = utils.FormatJSON
+)
