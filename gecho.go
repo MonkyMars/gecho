@@ -31,3 +31,4 @@ var Handlers = handlers.NewHandlers()
 
 // Logger
 var Logger = utils.Logger
+var InitializeLogger = utils.InitLogger

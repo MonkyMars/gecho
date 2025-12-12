@@ -33,9 +33,9 @@ var currentLevel uint
 // "warn" meaning only warnings and errors are shown
 // "error" meaning only errors are shown
 // If an invalid log level is provided, the function will panic
-func (l *logger) InitLogger(logLevel string) *logger {
+func InitLogger(logLevel ...string) *logger {
 	if initialized {
-		return l
+		return &logger{}
 	}
 
 	// Create default loggers that will be reconfigured later
@@ -43,22 +43,22 @@ func (l *logger) InitLogger(logLevel string) *logger {
 	warningLogger = log.New(os.Stdout, "WARN: ", log.Ltime|log.Lshortfile)
 	errorLogger = log.New(os.Stderr, "ERR: ", log.Ltime|log.Lshortfile)
 
-	if logLevel == "" {
-		logLevel = "info"
+	if len(logLevel) == 0 {
+		logLevel = []string{"info"}
 	}
 
-	if logLevel != "info" && logLevel != "warn" && logLevel != "error" {
-		panic("invalid log level: " + logLevel)
+	if logLevel[0] != "info" && logLevel[0] != "warn" && logLevel[0] != "error" {
+		panic("invalid log level: " + logLevel[0])
 	}
 
-	currentLevel = logLevels[logLevel]
+	currentLevel = logLevels[logLevel[0]]
 	if currentLevel == 0 {
 		currentLevel = logLevels["info"]
 	}
 
 	initialized = true
 
-	return l
+	return &logger{}
 }
 
 func (l *logger) Info(v ...any) {
