@@ -93,6 +93,64 @@ func DefaultConfig() Config {
 	}
 }
 
+type LoggerOptions func(*Config)
+
+func NewConfig(options ...LoggerOptions) Config {
+	config := DefaultConfig()
+	for _, option := range options {
+		option(&config)
+	}
+	return config
+}
+
+func WithLogLevel(level Level) LoggerOptions {
+	return func(c *Config) {
+		c.Level = level
+	}
+}
+
+func WithLogFormat(format Format) LoggerOptions {
+	return func(c *Config) {
+		c.Format = format
+	}
+}
+
+func WithColorize(colorize bool) LoggerOptions {
+	return func(c *Config) {
+		c.Colorize = colorize
+	}
+}
+
+func WithShowCaller(showCaller bool) LoggerOptions {
+	return func(c *Config) {
+		c.ShowCaller = showCaller
+	}
+}
+
+func WithTimeFormat(timeFormat string) LoggerOptions {
+	return func(c *Config) {
+		c.TimeFormat = timeFormat
+	}
+}
+
+func WithOutput(output io.Writer) LoggerOptions {
+	return func(c *Config) {
+		c.Output = output
+	}
+}
+
+func WithErrorOutput(errorOutput io.Writer) LoggerOptions {
+	return func(c *Config) {
+		c.ErrorOutput = errorOutput
+	}
+}
+
+func WithDefaultCallerSkip(callerSkip int) LoggerOptions {
+	return func(c *Config) {
+		c.CallerSkip = callerSkip
+	}
+}
+
 // Logger is a structured, thread-safe logger
 type Logger struct {
 	mu     sync.Mutex
@@ -123,13 +181,8 @@ func (l *Logger) WithFields(fields map[string]any) *Logger {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	newFields := make(map[string]any)
-	for k, v := range l.fields {
-		newFields[k] = v
-	}
-	for k, v := range fields {
-		newFields[k] = v
-	}
+	newFields := maps.Clone(l.fields)
+	maps.Copy(newFields, fields)
 
 	return &Logger{
 		config: l.config,

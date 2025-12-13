@@ -47,8 +47,21 @@ var ParseLogLevel = utils.ParseLevel
 var Field = utils.Field
 var WithCallerSkip = utils.WithCallerSkip
 
-// Logger type
+// Logger config functions
+var NewConfig = utils.NewConfig
+var WithLogLevel = utils.WithLogLevel
+var WithLogFormat = utils.WithLogFormat
+var WithColorize = utils.WithColorize
+var WithShowCaller = utils.WithShowCaller
+var WithTimeFormat = utils.WithTimeFormat
+var WithOutput = utils.WithOutput
+var WithErrorOutput = utils.WithErrorOutput
+var WithDefaultCallerSkip = utils.WithDefaultCallerSkip
+
+// Logger types
 type Logger = utils.Logger
+type LoggerConfig = utils.Config
+type LoggerOptions = utils.LoggerOptions
 
 // Log levels
 var (

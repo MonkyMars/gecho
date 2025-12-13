@@ -55,7 +55,6 @@ func (h *Handlers) HandleLogging(next http.Handler, logger *utils.Logger) http.H
 			)
 		} else {
 			logger.Info(
-				"HTTP request completed",
 				utils.Field("method", r.Method),
 				utils.Field("path", r.URL.Path),
 				utils.Field("status", wrapper.statusCode),

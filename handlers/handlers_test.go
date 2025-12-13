@@ -384,7 +384,8 @@ func TestHandleLogging(t *testing.T) {
 		})
 
 		handlers := NewHandlers()
-		loggingHandler := handlers.HandleLogging(testHandler, utils.NewDefaultLogger())
+		logger := utils.NewLogger(utils.NewConfig(utils.WithShowCaller(false)))
+		loggingHandler := handlers.HandleLogging(testHandler, logger)
 
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodGet, "/api/data", nil)
