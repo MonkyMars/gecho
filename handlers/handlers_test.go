@@ -188,7 +188,7 @@ func TestHandleLogging(t *testing.T) {
 		})
 
 		handlers := NewHandlers()
-		loggingHandler := handlers.HandleLogging(testHandler)
+		loggingHandler := handlers.HandleLogging(testHandler, utils.NewDefaultLogger())
 
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodGet, "/test", nil)
@@ -213,7 +213,7 @@ func TestHandleLogging(t *testing.T) {
 		})
 
 		handlers := NewHandlers()
-		loggingHandler := handlers.HandleLogging(testHandler)
+		loggingHandler := handlers.HandleLogging(testHandler, utils.NewDefaultLogger())
 
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodPost, "/api/users", nil)
@@ -233,7 +233,7 @@ func TestHandleLogging(t *testing.T) {
 		})
 
 		handlers := NewHandlers()
-		loggingHandler := handlers.HandleLogging(testHandler)
+		loggingHandler := handlers.HandleLogging(testHandler, utils.NewDefaultLogger())
 
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodPost, "/api/users", nil)
@@ -253,7 +253,7 @@ func TestHandleLogging(t *testing.T) {
 		})
 
 		handlers := NewHandlers()
-		loggingHandler := handlers.HandleLogging(testHandler)
+		loggingHandler := handlers.HandleLogging(testHandler, utils.NewDefaultLogger())
 
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodGet, "/api/users/999", nil)
@@ -273,7 +273,7 @@ func TestHandleLogging(t *testing.T) {
 		})
 
 		handlers := NewHandlers()
-		loggingHandler := handlers.HandleLogging(testHandler)
+		loggingHandler := handlers.HandleLogging(testHandler, utils.NewDefaultLogger())
 
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodGet, "/api/protected", nil)
@@ -293,7 +293,7 @@ func TestHandleLogging(t *testing.T) {
 		})
 
 		handlers := NewHandlers()
-		loggingHandler := handlers.HandleLogging(testHandler)
+		loggingHandler := handlers.HandleLogging(testHandler, utils.NewDefaultLogger())
 
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodGet, "/api/error", nil)
@@ -313,7 +313,7 @@ func TestHandleLogging(t *testing.T) {
 		})
 
 		handlers := NewHandlers()
-		loggingHandler := handlers.HandleLogging(testHandler)
+		loggingHandler := handlers.HandleLogging(testHandler, utils.NewDefaultLogger())
 
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodGet, "/api/service", nil)
@@ -332,7 +332,7 @@ func TestHandleLogging(t *testing.T) {
 		})
 
 		handlers := NewHandlers()
-		loggingHandler := handlers.HandleLogging(testHandler)
+		loggingHandler := handlers.HandleLogging(testHandler, utils.NewDefaultLogger())
 
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodGet, "/test", nil)
@@ -361,7 +361,7 @@ func TestHandleLogging(t *testing.T) {
 				})
 
 				handlers := NewHandlers()
-				loggingHandler := handlers.HandleLogging(testHandler)
+				loggingHandler := handlers.HandleLogging(testHandler, utils.NewDefaultLogger())
 
 				w := httptest.NewRecorder()
 				r := httptest.NewRequest(method, "/test", nil)
@@ -384,7 +384,7 @@ func TestHandleLogging(t *testing.T) {
 		})
 
 		handlers := NewHandlers()
-		loggingHandler := handlers.HandleLogging(testHandler)
+		loggingHandler := handlers.HandleLogging(testHandler, utils.NewDefaultLogger())
 
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodGet, "/api/data", nil)
@@ -408,7 +408,7 @@ func TestHandleLogging(t *testing.T) {
 		})
 
 		handlers := NewHandlers()
-		loggingHandler := handlers.HandleLogging(testHandler)
+		loggingHandler := handlers.HandleLogging(testHandler, utils.NewDefaultLogger())
 
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodGet, "/test", nil)
@@ -443,7 +443,7 @@ func TestHandleLogging(t *testing.T) {
 				})
 
 				handlers := NewHandlers()
-				loggingHandler := handlers.HandleLogging(testHandler)
+				loggingHandler := handlers.HandleLogging(testHandler, utils.NewDefaultLogger())
 
 				w := httptest.NewRecorder()
 				r := httptest.NewRequest(http.MethodGet, path, nil)

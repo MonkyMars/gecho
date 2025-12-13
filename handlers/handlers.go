@@ -22,14 +22,18 @@ func (h *Handlers) HandleMethod(w http.ResponseWriter, r *http.Request, intended
 	return nil
 }
 
-func (h *Handlers) HandleLogging(next http.Handler) http.Handler {
+func (h *Handlers) CreateLoggingMiddleware(logger *utils.Logger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return h.HandleLogging(next, logger)
+	}
+}
+
+func (h *Handlers) HandleLogging(next http.Handler, logger *utils.Logger) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		// Create a response writer wrapper to capture status code
 		wrapper := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
 		next.ServeHTTP(wrapper, r)
-
-		logger := utils.NewDefaultLogger()
 
 		duration := time.Since(start)
 		if wrapper.statusCode >= 500 {

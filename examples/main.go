@@ -28,9 +28,14 @@ var users = map[int]User{
 var nextID = 3
 
 func main() {
-	http.HandleFunc("/users", usersHandler)
-	http.HandleFunc("/users/", userByIDHandler)
-	http.HandleFunc("/health", healthHandler)
+	// Create a new ServeMux for routing
+	mux := http.NewServeMux()
+	mux.HandleFunc("/users", usersHandler)
+	mux.HandleFunc("/users/", userByIDHandler)
+	mux.HandleFunc("/health", healthHandler)
+
+	// Wrap the mux with logging middleware
+	loggedHandler := gecho.Handlers.HandleLogging(mux, gecho.NewDefaultLogger())
 
 	fmt.Println("Server starting on :8080")
 	fmt.Println("Try these endpoints:")
@@ -39,7 +44,7 @@ func main() {
 	fmt.Println("  POST http://localhost:8080/users")
 	fmt.Println("  GET  http://localhost:8080/health")
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", loggedHandler))
 }
 
 // Health check endpoint
@@ -62,7 +67,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 func usersHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		listUsers(w, r)
+		listUsers(w)
 	case http.MethodPost:
 		createUser(w, r)
 	default:
@@ -74,7 +79,7 @@ func usersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // List all users
-func listUsers(w http.ResponseWriter, r *http.Request) {
+func listUsers(w http.ResponseWriter) {
 	userList := make([]User, 0, len(users))
 	for _, user := range users {
 		userList = append(userList, user)
