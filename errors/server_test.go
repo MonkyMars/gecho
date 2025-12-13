@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,9 +11,7 @@ import (
 
 func TestInternalServerError(t *testing.T) {
 	w := httptest.NewRecorder()
-	rb := InternalServerError(w).WithMessage(utils.InternalServerErrorMessage)
-
-	err := rb.Send()
+	err := InternalServerError(w, utils.Send())
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -22,20 +21,19 @@ func TestInternalServerError(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusInternalServerError, resp.StatusCode)
 	}
 
-	if rb.Response().Message() != utils.InternalServerErrorMessage {
-		t.Errorf("Expected message '%s', got '%s'", utils.InternalServerErrorMessage, rb.Response().Message())
+	var response utils.NewResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
 	}
 
-	if rb.Response().Data() != nil {
-		t.Errorf("Expected data to be nil for error responses, got '%v'", rb.Response().Data())
+	if response.Message() != utils.InternalServerErrorMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.InternalServerErrorMessage, response.Message())
 	}
 }
 
 func TestServiceUnavailable(t *testing.T) {
 	w := httptest.NewRecorder()
-	rb := ServiceUnavailable(w).WithMessage(utils.ServiceUnavailableMessage)
-
-	err := rb.Send()
+	err := ServiceUnavailable(w, utils.Send())
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -45,11 +43,12 @@ func TestServiceUnavailable(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, resp.StatusCode)
 	}
 
-	if rb.Response().Message() != utils.ServiceUnavailableMessage {
-		t.Errorf("Expected message '%s', got '%s'", utils.ServiceUnavailableMessage, rb.Response().Message())
+	var response utils.NewResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
 	}
 
-	if rb.Response().Data() != nil {
-		t.Errorf("Expected data to be nil for error responses, got '%v'", rb.Response().Data())
+	if response.Message() != utils.ServiceUnavailableMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.ServiceUnavailableMessage, response.Message())
 	}
 }

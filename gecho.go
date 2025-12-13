@@ -7,6 +7,15 @@ import (
 	"github.com/MonkyMars/gecho/utils"
 )
 
+// Response option type
+type ResponseOption = utils.ResponseOption
+
+// Response option functions
+var WithData = utils.WithData
+var WithMessage = utils.WithMessage
+var WithStatus = utils.WithStatus
+var Send = utils.Send
+
 // Exported fluent API Functions
 var NewErr = utils.NewErr
 var NewOK = utils.NewOK
@@ -17,6 +26,7 @@ var Unauthorized = errors.Unauthorized
 var Forbidden = errors.Forbidden
 var NotFound = errors.NotFound
 var MethodNotAllowed = errors.MethodNotAllowed
+var Conflict = errors.Conflict
 
 // Exported Server Error Functions
 var InternalServerError = errors.InternalServerError

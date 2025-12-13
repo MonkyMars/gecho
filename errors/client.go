@@ -6,45 +6,68 @@ import (
 	"github.com/MonkyMars/gecho/utils"
 )
 
-// BadRequest returns a ResponseBuilder for 400 Bad Request responses
-// Use Send() to send the response with the default values
-// You can use WithData to add more details about the bad request, such as validation errors
-func BadRequest(w http.ResponseWriter) *utils.ResponseBuilder {
-	return utils.NewErr(w).WithStatus(http.StatusBadRequest).
-		WithMessage(utils.BadRequestMessage)
+// BadRequest sends a 400 Bad Request response with optional configuration
+// Example: errors.BadRequest(w, gecho.WithData(validationErrors), gecho.Send())
+func BadRequest(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+	allOpts := []utils.ResponseOption{
+		utils.WithStatus(http.StatusBadRequest),
+		utils.WithMessage(utils.BadRequestMessage),
+	}
+	allOpts = append(allOpts, opts...)
+	return utils.NewErr(w, allOpts...)
 }
 
-// Unauthorized returns a ResponseBuilder for 401 Unauthorized responses
-// Use Send() to send the response with the default values
-func Unauthorized(w http.ResponseWriter) *utils.ResponseBuilder {
-	return utils.NewErr(w).WithStatus(http.StatusUnauthorized).
-		WithMessage(utils.UnauthorizedMessage)
+// Unauthorized sends a 401 Unauthorized response with optional configuration
+// Example: errors.Unauthorized(w, gecho.Send())
+func Unauthorized(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+	allOpts := []utils.ResponseOption{
+		utils.WithStatus(http.StatusUnauthorized),
+		utils.WithMessage(utils.UnauthorizedMessage),
+	}
+	allOpts = append(allOpts, opts...)
+	return utils.NewErr(w, allOpts...)
 }
 
-// Forbidden returns a ResponseBuilder for 403 Forbidden responses
-// Use Send() to send the response with the default values
-func Forbidden(w http.ResponseWriter) *utils.ResponseBuilder {
-	return utils.NewErr(w).WithStatus(http.StatusForbidden).
-		WithMessage(utils.ForbiddenMessage)
+// Forbidden sends a 403 Forbidden response with optional configuration
+// Example: errors.Forbidden(w, gecho.WithMessage("Access denied"), gecho.Send())
+func Forbidden(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+	allOpts := []utils.ResponseOption{
+		utils.WithStatus(http.StatusForbidden),
+		utils.WithMessage(utils.ForbiddenMessage),
+	}
+	allOpts = append(allOpts, opts...)
+	return utils.NewErr(w, allOpts...)
 }
 
-// NotFound returns a ResponseBuilder for 404 Not Found responses
-// Use Send() to send the response with the default values
-func NotFound(w http.ResponseWriter) *utils.ResponseBuilder {
-	return utils.NewErr(w).WithStatus(http.StatusNotFound).
-		WithMessage(utils.NotFoundMessage)
+// NotFound sends a 404 Not Found response with optional configuration
+// Example: errors.NotFound(w, gecho.Send())
+func NotFound(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+	allOpts := []utils.ResponseOption{
+		utils.WithStatus(http.StatusNotFound),
+		utils.WithMessage(utils.NotFoundMessage),
+	}
+	allOpts = append(allOpts, opts...)
+	return utils.NewErr(w, allOpts...)
 }
 
-// MethodNotAllowed returns a ResponseBuilder for 405 Method Not Allowed responses
-// Use Send() to send the response with the default values
-func MethodNotAllowed(w http.ResponseWriter) *utils.ResponseBuilder {
-	return utils.NewErr(w).WithStatus(http.StatusMethodNotAllowed).
-		WithMessage(utils.MethodNotAllowedMessage)
+// MethodNotAllowed sends a 405 Method Not Allowed response with optional configuration
+// Example: errors.MethodNotAllowed(w, gecho.Send())
+func MethodNotAllowed(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+	allOpts := []utils.ResponseOption{
+		utils.WithStatus(http.StatusMethodNotAllowed),
+		utils.WithMessage(utils.MethodNotAllowedMessage),
+	}
+	allOpts = append(allOpts, opts...)
+	return utils.NewErr(w, allOpts...)
 }
 
-// Conflict returns a ResponseBuilder for 409 Conflict responses
-// Use Send() to send the response with the default values
-func Conflict(w http.ResponseWriter) *utils.ResponseBuilder {
-	return utils.NewErr(w).WithStatus(http.StatusConflict).
-		WithMessage(utils.ConflictMessage)
+// Conflict sends a 409 Conflict response with optional configuration
+// Example: errors.Conflict(w, gecho.WithMessage("Resource already exists"), gecho.Send())
+func Conflict(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+	allOpts := []utils.ResponseOption{
+		utils.WithStatus(http.StatusConflict),
+		utils.WithMessage(utils.ConflictMessage),
+	}
+	allOpts = append(allOpts, opts...)
+	return utils.NewErr(w, allOpts...)
 }

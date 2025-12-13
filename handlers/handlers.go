@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -15,12 +14,10 @@ func NewHandlers() *Handlers {
 	return &Handlers{}
 }
 
-func (h *Handlers) HandleMethod(w http.ResponseWriter, r *http.Request, intendedMethod string) *utils.ResponseBuilder {
-	method := r.Method
-	if method != intendedMethod {
-		return errors.MethodNotAllowed(w).WithMessage(fmt.Sprintf("Method %s not allowed", method))
+func (h *Handlers) HandleMethod(w http.ResponseWriter, r *http.Request, intendedMethod string) error {
+	if r.Method != intendedMethod {
+		return errors.MethodNotAllowed(w, utils.Send())
 	}
-
 	return nil
 }
 
@@ -53,6 +50,7 @@ func (h *Handlers) HandleLogging(next http.Handler) http.Handler {
 			)
 		} else {
 			logger.Info(
+				"HTTP request completed",
 				utils.Field("method", r.Method),
 				utils.Field("path", r.URL.Path),
 				utils.Field("status", wrapper.statusCode),

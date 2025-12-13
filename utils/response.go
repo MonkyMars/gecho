@@ -4,71 +4,80 @@ import (
 	"net/http"
 )
 
-// ResponseBuilder provides a fluent interface for building responses
-type ResponseBuilder struct {
-	w        http.ResponseWriter
-	response *NewResponse
-	isError  bool
+// ResponseOption is a function that configures a response
+type ResponseOption func(*responseConfig)
+
+// responseConfig holds the configuration for a response
+type responseConfig struct {
+	w       http.ResponseWriter
+	status  int
+	success bool
+	message string
+	data    any
+	send    bool
 }
 
-func (rb *ResponseBuilder) Response() *NewResponse {
-	return rb.response
-}
-
-// NewOK creates a new ResponseBuilder for success responses
-func NewOK(w http.ResponseWriter) *ResponseBuilder {
-	return newResponseBuilder(w, http.StatusOK, false)
-}
-
-// NewErr creates a new ResponseBuilder for error responses
-func NewErr(w http.ResponseWriter) *ResponseBuilder {
-	return newResponseBuilder(w, http.StatusInternalServerError, true)
-}
-
-// newResponseBuilder creates a ResponseBuilder with custom status and type
-func newResponseBuilder(w http.ResponseWriter, status int, isError bool) *ResponseBuilder {
-	success := true
-	if isError {
-		success = false
-	}
-
-	return &ResponseBuilder{
-		w: w,
-		response: &NewResponse{
-			status:    status,
-			success:   success,
-			timestamp: getTimestamp(),
-		},
-		isError: isError,
+// WithData sets the response data
+func WithData(data any) ResponseOption {
+	return func(rc *responseConfig) {
+		rc.data = data
 	}
 }
 
-// WithMessage sets the response message and returns builder for chaining
-func (rb *ResponseBuilder) WithMessage(message string) *ResponseBuilder {
-	rb.Response().message = message
-	return rb
+// WithMessage sets the response message
+func WithMessage(message string) ResponseOption {
+	return func(rc *responseConfig) {
+		rc.message = message
+	}
 }
 
-// WithData sets the response data and returns builder for chaining
-func (rb *ResponseBuilder) WithData(data any) *ResponseBuilder {
-	rb.Response().data = data
-	return rb
+// WithStatus sets the HTTP status code
+func WithStatus(status int) ResponseOption {
+	return func(rc *responseConfig) {
+		rc.status = status
+	}
 }
 
-// WithStatus sets the HTTP status code and returns builder for chaining
-func (rb *ResponseBuilder) WithStatus(status int) *ResponseBuilder {
-	rb.Response().status = status
-	return rb
+// Send marks the response to be sent immediately
+func Send() ResponseOption {
+	return func(rc *responseConfig) {
+		rc.send = true
+	}
 }
 
-// Send manually sends the response
-func (rb *ResponseBuilder) Send() error {
-	data := rb.Response().Data()
+// buildResponse applies all options and optionally sends the response
+func buildResponse(w http.ResponseWriter, defaultStatus int, isError bool, defaultMessage string, opts []ResponseOption) error {
+	success := !isError
 
-	if rb.isError {
-		data = nil
+	config := &responseConfig{
+		w:       w,
+		status:  defaultStatus,
+		success: success,
+		message: defaultMessage,
+		data:    nil,
+		send:    false,
 	}
 
-	err := writeJSON(rb.w, rb.Response().Status(), rb.Response().Success(), rb.Response().Message(), data)
-	return err
+	// Apply all options
+	for _, opt := range opts {
+		opt(config)
+	}
+
+	// Send if requested
+	if config.send {
+		data := config.data
+		return writeJSON(config.w, config.status, config.success, config.message, data)
+	}
+
+	return nil
+}
+
+// NewOK creates a success response with options
+func NewOK(w http.ResponseWriter, opts ...ResponseOption) error {
+	return buildResponse(w, http.StatusOK, false, "Success", opts)
+}
+
+// NewErr creates an error response with options
+func NewErr(w http.ResponseWriter, opts ...ResponseOption) error {
+	return buildResponse(w, http.StatusInternalServerError, true, "Internal server error", opts)
 }

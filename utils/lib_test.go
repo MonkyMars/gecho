@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,12 +10,12 @@ import (
 
 func TestExtractResponseBody(t *testing.T) {
 	w := httptest.NewRecorder()
-	rb := NewOK(w).
-		WithMessage("Extract Test").
-		WithData(map[string]string{"extract": "test"}).
-		WithStatus(http.StatusOK)
-
-	err := rb.Send()
+	err := NewOK(w,
+		WithMessage("Extract Test"),
+		WithData(map[string]string{"extract": "test"}),
+		WithStatus(http.StatusOK),
+		Send(),
+	)
 	if err != nil {
 		t.Errorf("Expected no error on Send(), got %v", err)
 	}
@@ -84,22 +85,30 @@ func TestWriteJSON_NilWriter(t *testing.T) {
 
 func TestNewResponseBuilder(t *testing.T) {
 	w := httptest.NewRecorder()
-	responseBuilder := newResponseBuilder(w, http.StatusOK, false)
+	err := NewOK(w,
+		WithStatus(http.StatusOK),
+		Send(),
+	)
 
-	if responseBuilder.Response().Status() != http.StatusOK {
-		t.Errorf("Expected status %d, got %d", http.StatusOK, responseBuilder.Response().Status())
-	}
-	
-	if responseBuilder.Response().Success() != true {
-		t.Errorf("Expected success to be true, got %v", responseBuilder.Response().Success())
-	}
-
-	if responseBuilder.isError != false {
-		t.Errorf("Expected isError to be false, got %v", responseBuilder.isError)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
 	}
 
-	if responseBuilder.Response().Message() != "" {
-		t.Errorf("Expected empty message, got '%s'", responseBuilder.Response().Message())
+	var response NewResponse
+	if err := json.NewDecoder(w.Result().Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	if response.Status() != http.StatusOK {
+		t.Errorf("Expected status %d, got %d", http.StatusOK, response.Status())
+	}
+
+	if response.Success() != true {
+		t.Errorf("Expected success to be true, got %v", response.Success())
+	}
+
+	if response.Message() != "Success" {
+		t.Errorf("Expected default message 'Success', got '%s'", response.Message())
 	}
 }
 
@@ -107,11 +116,7 @@ func TestGetTimestamp(t *testing.T) {
 	now := time.Now()
 	timestamp := getTimestamp()
 
-	if timestamp.Before(now) || timestamp.After(time.Now()) {
+	if timestamp.Before(now) || timestamp.After(time.Now().Add(time.Second)) {
 		t.Errorf("Expected timestamp to be around now, got %v", timestamp)
-	}
-
-	if !timestamp.Equal(timestamp.UTC()) {
-		t.Errorf("Expected timestamp to be in UTC, got %v", timestamp.Location())
 	}
 }

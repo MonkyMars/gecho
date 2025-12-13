@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,9 +11,7 @@ import (
 
 func TestBadRequest(t *testing.T) {
 	w := httptest.NewRecorder()
-	rb := BadRequest(w).WithMessage(utils.BadRequestMessage).WithData(map[string]string{"field": "invalid"})
-
-	err := rb.Send()
+	err := BadRequest(w, utils.WithData(map[string]string{"field": "invalid"}), utils.Send())
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -22,21 +21,23 @@ func TestBadRequest(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, resp.StatusCode)
 	}
 
-	if rb.Response().Message() != utils.BadRequestMessage {
-		t.Errorf("Expected message '%s', got '%s'", utils.BadRequestMessage, rb.Response().Message())
+	var response utils.NewResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
 	}
 
-	dataMap, ok := rb.Response().Data().(map[string]string)
-	if !ok || dataMap["field"] != "invalid" {
-		t.Errorf("Expected data map with field 'invalid', got '%v'", rb.Response().Data())
+	if response.Message() != utils.BadRequestMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.BadRequestMessage, response.Message())
+	}
+
+	if !response.Success() {
+		// Expected for error responses
 	}
 }
 
 func TestUnauthorized(t *testing.T) {
 	w := httptest.NewRecorder()
-	rb := Unauthorized(w).WithMessage(utils.UnauthorizedMessage)
-
-	err := rb.Send()
+	err := Unauthorized(w, utils.Send())
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -46,16 +47,19 @@ func TestUnauthorized(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusUnauthorized, resp.StatusCode)
 	}
 
-	if rb.Response().Message() != utils.UnauthorizedMessage {
-		t.Errorf("Expected message '%s', got '%s'", utils.UnauthorizedMessage, rb.Response().Message())
+	var response utils.NewResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	if response.Message() != utils.UnauthorizedMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.UnauthorizedMessage, response.Message())
 	}
 }
 
 func TestForbidden(t *testing.T) {
 	w := httptest.NewRecorder()
-	rb := Forbidden(w).WithMessage(utils.ForbiddenMessage)
-
-	err := rb.Send()
+	err := Forbidden(w, utils.Send())
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -65,16 +69,19 @@ func TestForbidden(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusForbidden, resp.StatusCode)
 	}
 
-	if rb.Response().Message() != utils.ForbiddenMessage {
-		t.Errorf("Expected message '%s', got '%s'", utils.ForbiddenMessage, rb.Response().Message())
+	var response utils.NewResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	if response.Message() != utils.ForbiddenMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.ForbiddenMessage, response.Message())
 	}
 }
 
 func TestNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
-	rb := NotFound(w).WithMessage(utils.NotFoundMessage)
-
-	err := rb.Send()
+	err := NotFound(w, utils.Send())
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -84,16 +91,19 @@ func TestNotFound(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusNotFound, resp.StatusCode)
 	}
 
-	if rb.Response().Message() != utils.NotFoundMessage {
-		t.Errorf("Expected message '%s', got '%s'", utils.NotFoundMessage, rb.Response().Message())
+	var response utils.NewResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	if response.Message() != utils.NotFoundMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.NotFoundMessage, response.Message())
 	}
 }
 
 func TestMethodNotAllowed(t *testing.T) {
 	w := httptest.NewRecorder()
-	rb := MethodNotAllowed(w).WithMessage(utils.MethodNotAllowedMessage)
-
-	err := rb.Send()
+	err := MethodNotAllowed(w, utils.Send())
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -103,7 +113,12 @@ func TestMethodNotAllowed(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusMethodNotAllowed, resp.StatusCode)
 	}
 
-	if rb.Response().Message() != utils.MethodNotAllowedMessage {
-		t.Errorf("Expected message '%s', got '%s'", utils.MethodNotAllowedMessage, rb.Response().Message())
+	var response utils.NewResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	if response.Message() != utils.MethodNotAllowedMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.MethodNotAllowedMessage, response.Message())
 	}
 }

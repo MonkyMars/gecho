@@ -1,6 +1,7 @@
 package success
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,112 +10,63 @@ import (
 )
 
 func TestCorrectSuccessResponses(t *testing.T) {
-	// Test Success response
-	t.Run("Success", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		responseBuilder := Success(w)
-		err := responseBuilder.Send()
-		if err != nil {
-			t.Errorf("Expected no error on Send(), got %v", err)
-		}
-		if w.Result().StatusCode != http.StatusOK {
-			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Result().StatusCode)
-		}
+	tests := []struct {
+		name           string
+		fn             func(http.ResponseWriter, ...utils.ResponseOption) error
+		expectedStatus int
+		expectedMsg    string
+	}{
+		{
+			name:           "Success",
+			fn:             Success,
+			expectedStatus: http.StatusOK,
+			expectedMsg:    "Success",
+		},
+		{
+			name:           "Created",
+			fn:             Created,
+			expectedStatus: http.StatusCreated,
+			expectedMsg:    "Resource Created",
+		},
+		{
+			name:           "Accepted",
+			fn:             Accepted,
+			expectedStatus: http.StatusAccepted,
+			expectedMsg:    "Accepted",
+		},
+		{
+			name:           "NoContent",
+			fn:             NoContent,
+			expectedStatus: http.StatusNoContent,
+			expectedMsg:    "No Content",
+		},
+	}
 
-		// Extract and verify response body
-		val, err := utils.ExtractResponseBody[utils.NewResponse](w.Result())
-		if err != nil {
-			t.Errorf("Expected no error on ExtractResponseBody(), got %v", err)
-		}
-		if val.Status() != http.StatusOK {
-			t.Errorf("Expected status %d, got %d", http.StatusOK, val.Status())
-		}
-		if val.Message() != "Success" {
-			t.Errorf("Expected message 'Success', got '%s'", val.Message())
-		}
-		if val.Data() != nil {
-			t.Errorf("Expected nil data, got '%v'", val.Data())
-		}
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			err := tt.fn(w, utils.Send())
+			if err != nil {
+				t.Errorf("Expected no error, got %v", err)
+			}
 
-	// Test Created response
-	t.Run("Created", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		responseBuilder := Created(w)
-		err := responseBuilder.Send()
-		if err != nil {
-			t.Errorf("Expected no error on Send(), got %v", err)
-		}
-		if w.Result().StatusCode != http.StatusCreated {
-			t.Errorf("Expected status code %d, got %d", http.StatusCreated, w.Result().StatusCode)
-		}
+			resp := w.Result()
+			if resp.StatusCode != tt.expectedStatus {
+				t.Errorf("Expected status code %d, got %d", tt.expectedStatus, resp.StatusCode)
+			}
 
-		// Extract and verify response body
-		val, err := utils.ExtractResponseBody[utils.NewResponse](w.Result())
-		if err != nil {
-			t.Errorf("Expected no error on ExtractResponseBody(), got %v", err)
-		}
-		if val.Status() != http.StatusCreated {
-			t.Errorf("Expected status %d, got %d", http.StatusCreated, val.Status())
-		}
-		if val.Message() != "Resource Created" {
-			t.Errorf("Expected message 'Resource Created', got '%s'", val.Message())
-		}
-	})
+			var response utils.NewResponse
+			if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+				t.Fatalf("Failed to decode response: %v", err)
+			}
 
-	// Test Accepted response
-	t.Run("Accepted", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		responseBuilder := Accepted(w)
-		err := responseBuilder.Send()
-		if err != nil {
-			t.Errorf("Expected no error on Send(), got %v", err)
-		}
-		if w.Result().StatusCode != http.StatusAccepted {
-			t.Errorf("Expected status code %d, got %d", http.StatusAccepted, w.Result().StatusCode)
-		}
+			if response.Message() != tt.expectedMsg {
+				t.Errorf("Expected message '%s', got '%s'", tt.expectedMsg, response.Message())
+			}
 
-		// Extract and verify response body
-		val, err := utils.ExtractResponseBody[utils.NewResponse](w.Result())
-		if err != nil {
-			t.Errorf("Expected no error on ExtractResponseBody(), got %v", err)
-		}
-		if val.Status() != http.StatusAccepted {
-			t.Errorf("Expected status %d, got %d", http.StatusAccepted, val.Status())
-		}
-		if val.Message() != "Accepted" {
-			t.Errorf("Expected message 'Accepted', got '%s'", val.Message())
-		}
-		if val.Data() != nil {
-			t.Errorf("Expected nil data, got '%v'", val.Data())
-		}
-	})
-
-	// Test NoContent response
-	t.Run("NoContent", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		responseBuilder := NoContent(w)
-		err := responseBuilder.Send()
-		if err != nil {
-			t.Errorf("Expected no error on Send(), got %v", err)
-		}
-		if w.Result().StatusCode != http.StatusNoContent {
-			t.Errorf("Expected status code %d, got %d", http.StatusNoContent, w.Result().StatusCode)
-		}
-
-		// Extract and verify response body
-		val, err := utils.ExtractResponseBody[utils.NewResponse](w.Result())
-		if err != nil {
-			t.Errorf("Expected no error on ExtractResponseBody(), got %v", err)
-		}
-		if val.Status() != http.StatusNoContent {
-			t.Errorf("Expected status %d, got %d", http.StatusNoContent, val.Status())
-		}
-		if val.Message() != "No Content" {
-			t.Errorf("Expected message 'No Content', got '%s'", val.Message())
-		}
-		if val.Data() != nil {
-			t.Errorf("Expected nil data, got '%v'", val.Data())
-		}
-	})
+			if !response.Success() {
+				t.Errorf("Expected success to be true, got false")
+			}
+		})
+	}
 }

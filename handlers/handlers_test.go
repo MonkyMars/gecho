@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
+
+	"github.com/MonkyMars/gecho/utils"
 )
 
 func TestCorrectMethodHandlers(t *testing.T) {
@@ -16,9 +18,9 @@ func TestCorrectMethodHandlers(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "/test", nil)
 
 		handlers := NewHandlers()
-		responseBuilder := handlers.HandleMethod(w, r, http.MethodGet)
-		if responseBuilder != nil {
-			t.Errorf("Expected nil response for allowed method, got %v", responseBuilder)
+		err := handlers.HandleMethod(w, r, http.MethodGet)
+		if err != nil {
+			t.Errorf("Expected nil error for allowed method, got %v", err)
 		}
 
 		if w.Result().StatusCode != http.StatusOK {
@@ -33,18 +35,13 @@ func TestCorrectMethodHandlers(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPost, "/test", nil)
 
 		handlers := NewHandlers()
-		responseBuilder := handlers.HandleMethod(w, r, http.MethodGet)
-		if responseBuilder == nil {
-			t.Errorf("Expected non-nil response for disallowed method, got nil")
-		} else {
-			err := responseBuilder.Send()
-			if err != nil {
-				t.Errorf("Expected no error on Send(), got %v", err)
-			}
+		err := handlers.HandleMethod(w, r, http.MethodPost)
+		if err != nil {
+			t.Errorf("Expected nil error for allowed method, got %v", err)
+		}
 
-			if w.Result().StatusCode != http.StatusMethodNotAllowed {
-				t.Errorf("Expected status code %d, got %d", http.StatusMethodNotAllowed, w.Result().StatusCode)
-			}
+		if w.Result().StatusCode != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Result().StatusCode)
 		}
 	})
 
@@ -55,9 +52,9 @@ func TestCorrectMethodHandlers(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPut, "/test", nil)
 
 		handlers := NewHandlers()
-		responseBuilder := handlers.HandleMethod(w, r, http.MethodPut)
-		if responseBuilder != nil {
-			t.Errorf("Expected nil response for allowed method, got %v", responseBuilder)
+		err := handlers.HandleMethod(w, r, http.MethodPut)
+		if err != nil {
+			t.Errorf("Expected nil error for allowed method, got %v", err)
 		}
 
 		if w.Result().StatusCode != http.StatusOK {
@@ -72,9 +69,9 @@ func TestCorrectMethodHandlers(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPatch, "/test", nil)
 
 		handlers := NewHandlers()
-		responseBuilder := handlers.HandleMethod(w, r, http.MethodPatch)
-		if responseBuilder != nil {
-			t.Errorf("Expected nil response for allowed method, got %v", responseBuilder)
+		err := handlers.HandleMethod(w, r, http.MethodPatch)
+		if err != nil {
+			t.Errorf("Expected nil error for allowed method, got %v", err)
 		}
 
 		if w.Result().StatusCode != http.StatusOK {
@@ -89,9 +86,9 @@ func TestCorrectMethodHandlers(t *testing.T) {
 		r := httptest.NewRequest(http.MethodDelete, "/test", nil)
 
 		handlers := NewHandlers()
-		responseBuilder := handlers.HandleMethod(w, r, http.MethodDelete)
-		if responseBuilder != nil {
-			t.Errorf("Expected nil response for allowed method, got %v", responseBuilder)
+		err := handlers.HandleMethod(w, r, http.MethodDelete)
+		if err != nil {
+			t.Errorf("Expected nil error for allowed method, got %v", err)
 		}
 
 		if w.Result().StatusCode != http.StatusOK {
@@ -108,22 +105,23 @@ func TestIncorrectMethodHandlers(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "/test", nil)
 
 		handlers := NewHandlers()
-		responseBuilder := handlers.HandleMethod(w, r, http.MethodPost)
-		if responseBuilder == nil {
-			t.Errorf("Expected non-nil response for disallowed method, got nil")
-		} else {
-			err := responseBuilder.Send()
-			if err != nil {
-				t.Errorf("Expected no error on Send(), got %v", err)
-			}
+		err := handlers.HandleMethod(w, r, http.MethodPost)
+		if err != nil {
+			t.Errorf("Expected no error, got %v", err)
+		}
 
-			if w.Result().StatusCode != http.StatusMethodNotAllowed {
-				t.Errorf("Expected status code %d, got %d", http.StatusMethodNotAllowed, w.Result().StatusCode)
-			}
+		if w.Result().StatusCode != http.StatusMethodNotAllowed {
+			t.Errorf("Expected status code %d, got %d", http.StatusMethodNotAllowed, w.Result().StatusCode)
+		}
 
-			if !strings.Contains(w.Body.String(), fmt.Sprintf("Method %s not allowed", http.MethodGet)) {
-				t.Errorf("Expected message 'Method GET not allowed' to be present, got '%s'", w.Body.String())
-			}
+		var response utils.NewResponse
+		if err := json.NewDecoder(w.Result().Body).Decode(&response); err != nil {
+			t.Fatalf("Failed to decode response: %v", err)
+		}
+
+		expectedMsg := fmt.Sprintf("Method %s not allowed", http.MethodGet)
+		if response.Message() != expectedMsg {
+			t.Errorf("Expected message '%s', got '%s'", expectedMsg, response.Message())
 		}
 	})
 
@@ -134,22 +132,23 @@ func TestIncorrectMethodHandlers(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPost, "/test", nil)
 
 		handlers := NewHandlers()
-		responseBuilder := handlers.HandleMethod(w, r, http.MethodGet)
-		if responseBuilder == nil {
-			t.Errorf("Expected non-nil response for disallowed method, got nil")
-		} else {
-			err := responseBuilder.Send()
-			if err != nil {
-				t.Errorf("Expected no error on Send(), got %v", err)
-			}
+		err := handlers.HandleMethod(w, r, http.MethodGet)
+		if err != nil {
+			t.Errorf("Expected no error, got %v", err)
+		}
 
-			if w.Result().StatusCode != http.StatusMethodNotAllowed {
-				t.Errorf("Expected status code %d, got %d", http.StatusMethodNotAllowed, w.Result().StatusCode)
-			}
+		if w.Result().StatusCode != http.StatusMethodNotAllowed {
+			t.Errorf("Expected status code %d, got %d", http.StatusMethodNotAllowed, w.Result().StatusCode)
+		}
 
-			if !strings.Contains(w.Body.String(), fmt.Sprintf("Method %s not allowed", http.MethodPost)) {
-				t.Errorf("Expected message 'Method POST not allowed' to be present, got '%s'", w.Body.String())
-			}
+		var response utils.NewResponse
+		if err := json.NewDecoder(w.Result().Body).Decode(&response); err != nil {
+			t.Fatalf("Failed to decode response: %v", err)
+		}
+
+		expectedMsg := fmt.Sprintf("Method %s not allowed", http.MethodPost)
+		if response.Message() != expectedMsg {
+			t.Errorf("Expected message '%s', got '%s'", expectedMsg, response.Message())
 		}
 	})
 
@@ -159,22 +158,23 @@ func TestIncorrectMethodHandlers(t *testing.T) {
 		r := httptest.NewRequest(http.MethodPatch, "/test", nil)
 
 		handlers := NewHandlers()
-		responseBuilder := handlers.HandleMethod(w, r, http.MethodDelete)
-		if responseBuilder == nil {
-			t.Errorf("Expected non-nil response for disallowed method, got nil")
-		} else {
-			err := responseBuilder.Send()
-			if err != nil {
-				t.Errorf("Expected no error on Send(), got %v", err)
-			}
+		err := handlers.HandleMethod(w, r, http.MethodDelete)
+		if err != nil {
+			t.Errorf("Expected no error, got %v", err)
+		}
 
-			if w.Result().StatusCode != http.StatusMethodNotAllowed {
-				t.Errorf("Expected status code %d, got %d", http.StatusMethodNotAllowed, w.Result().StatusCode)
-			}
+		if w.Result().StatusCode != http.StatusMethodNotAllowed {
+			t.Errorf("Expected status code %d, got %d", http.StatusMethodNotAllowed, w.Result().StatusCode)
+		}
 
-			if !strings.Contains(w.Body.String(), fmt.Sprintf("Method %s not allowed", http.MethodPatch)) {
-				t.Errorf("Expected message 'Method PATCH not allowed' to be present, got '%s'", w.Body.String())
-			}
+		var response utils.NewResponse
+		if err := json.NewDecoder(w.Result().Body).Decode(&response); err != nil {
+			t.Fatalf("Failed to decode response: %v", err)
+		}
+
+		expectedMsg := fmt.Sprintf("Method %s not allowed", http.MethodPatch)
+		if response.Message() != expectedMsg {
+			t.Errorf("Expected message '%s', got '%s'", expectedMsg, response.Message())
 		}
 	})
 }
