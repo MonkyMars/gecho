@@ -26,7 +26,7 @@ func (h *Handlers) HandleLogging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		// Create a response writer wrapper to capture status code
-		wrapper := &responseWriter{ResponseWriter: w, statusCode: r.Response.StatusCode}
+		wrapper := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
 		next.ServeHTTP(wrapper, r)
 
 		logger := utils.NewDefaultLogger()
@@ -66,4 +66,9 @@ func (h *Handlers) HandleLogging(next http.Handler) http.Handler {
 type responseWriter struct {
 	http.ResponseWriter
 	statusCode int
+}
+
+func (rw *responseWriter) WriteHeader(code int) {
+	rw.statusCode = code
+	rw.ResponseWriter.WriteHeader(code)
 }
