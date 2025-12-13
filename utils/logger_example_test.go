@@ -27,17 +27,19 @@ func Example_structuredLogging() {
 
 	// Log with structured key-value pairs
 	logger.Info("User logged in",
-		"user_id", 12345,
-		"username", "john_doe",
-		"ip_address", "192.168.1.1",
+		utils.Field("user_id", 12345),
+		utils.Field("username", "johndoe"),
+		utils.Field("ip_address", "127.0.0.1"),
 	)
 
-	logger.Error("Database connection failed",
-		"error", "connection timeout",
-		"host", "db.example.com",
-		"port", 5432,
-		"retry_count", 3,
+	logger.Error(
+		"Database connection failed",
+		utils.Field("error", "connection timeout"),
+		utils.Field("host", "db.example.com"),
+		utils.Field("port", 5432),
+		utils.Field("retry_count", 3),
 	)
+
 }
 
 // Example_customConfiguration demonstrates custom logger configuration
@@ -59,18 +61,22 @@ func Example_customConfiguration() {
 
 // Example_jsonFormat demonstrates JSON output format
 func Example_jsonFormat() {
+	var buf bytes.Buffer
 	config := utils.DefaultConfig()
 	config.Format = utils.FormatJSON
+	config.Output = &buf
 
 	logger := utils.NewLogger(config)
 
 	logger.Info("Request processed",
-		"method", "GET",
-		"path", "/api/users",
-		"status", 200,
-		"duration_ms", 45,
+		utils.Field("method", "GET"),
+		utils.Field("path", "/api/users"),
+		utils.Field("status", 200),
+		utils.Field("duration_ms", 45),
 	)
-	// Output: {"timestamp":"...","level":"INFO","message":"Request processed","caller":"...","fields":{"method":"GET","path":"/api/users","status":200,"duration_ms":45}}
+
+	// Output shows JSON format with timestamp, level, message, caller, and fields
+	// The actual output will vary based on timestamp and caller location
 }
 
 // Example_contextualLogging demonstrates adding persistent fields
@@ -83,8 +89,7 @@ func Example_contextualLogging() {
 
 	// All logs from this logger include the request_id
 	requestLogger.Info("Starting request processing")
-	requestLogger.Info("Database query executed", "rows", 42)
-	requestLogger.Info("Request completed", "status", 200)
+	requestLogger.Debug("Fetching user data", utils.Field("user_id", 456))
 
 	// Add multiple fields at once
 	userLogger := requestLogger.WithFields(map[string]any{
@@ -92,7 +97,7 @@ func Example_contextualLogging() {
 		"username": "alice",
 	})
 
-	userLogger.Info("User action performed", "action", "update_profile")
+	userLogger.Info("User data retrieved")
 }
 
 // Example_logLevels demonstrates different log levels
@@ -123,7 +128,7 @@ func Example_parseLevel() {
 	config.Level = utils.ParseLevel(levelStr)
 
 	logger := utils.NewLogger(config)
-	logger.Info("Logger initialized", "level", levelStr)
+	logger.Info("Logger initialized with level", utils.Field("level", levelStr))
 }
 
 // Example_customOutput demonstrates writing logs to custom destinations
@@ -136,7 +141,7 @@ func Example_customOutput() {
 	config.Colorize = false // Disable colors for buffer output
 
 	logger := utils.NewLogger(config)
-	logger.Info("Test message", "key", "value")
+	logger.Info("Test message", utils.Field("key", "value"))
 
 	// The log is now in buf, which could be written to a file, sent to a service, etc.
 }
@@ -160,7 +165,7 @@ func Example_httpMiddleware() {
 		// All logs will include request_id and user_id
 		processBusinessLogic(reqLogger)
 
-		reqLogger.Info("Request completed", "status", 200)
+		reqLogger.Info("Request completed", utils.Field("status", "success"))
 	}
 
 	handleRequest("req-123", 456)
@@ -168,7 +173,7 @@ func Example_httpMiddleware() {
 
 func processBusinessLogic(logger *utils.Logger) {
 	logger.Debug("Executing business logic")
-	logger.Info("Database query executed", "duration_ms", 23)
+	logger.Info("Database query executed", utils.Field("rows_returned", 10))
 }
 
 // Example_errorHandling demonstrates logging errors
@@ -179,9 +184,7 @@ func Example_errorHandling() {
 	err := performOperation()
 	if err != nil {
 		logger.Error("Operation failed",
-			"error", err.Error(),
-			"operation", "database_query",
-			"retry_attempted", true,
+			utils.Field("error", err.Error()),
 		)
 	}
 }
@@ -247,7 +250,7 @@ func Example_multipleLoggers() {
 	debugLogger := utils.NewLogger(debugConfig).WithField("logger", "debug")
 
 	// Use different loggers for different purposes
-	accessLogger.Info("User accessed page", "path", "/home")
-	errorLogger.Error("Critical error occurred", "code", 500)
-	debugLogger.Debug("Variable state", "x", 42, "y", 100)
+	accessLogger.Info("User accessed the homepage", utils.Field("user_id", 789))
+	errorLogger.Error("Failed to process payment", utils.Field("order_id", 456), utils.Field("error", "insufficient funds"))
+	debugLogger.Debug("Loaded configuration", utils.Field("config_version", "v1.0.0"))
 }

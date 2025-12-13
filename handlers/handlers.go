@@ -36,27 +36,28 @@ func (h *Handlers) HandleLogging(next http.Handler) http.Handler {
 		duration := time.Since(start)
 		if wrapper.statusCode >= 500 {
 			logger.Error(
-				"method", r.Method,
-				"path", r.URL.Path,
-				"status", wrapper.statusCode,
-				"duration", duration,
-				"remote_addr", r.RemoteAddr,
+				utils.Field("method", r.Method),
+				utils.Field("path", r.URL.Path),
+				utils.Field("status", wrapper.statusCode),
+				utils.Field("duration", duration),
+				utils.Field("remote_addr", r.RemoteAddr),
 			)
+
 		} else if wrapper.statusCode >= 400 {
 			logger.Warn(
-				"method", r.Method,
-				"path", r.URL.Path,
-				"status", wrapper.statusCode,
-				"duration", duration,
-				"remote_addr", r.RemoteAddr,
+				utils.Field("method", r.Method),
+				utils.Field("path", r.URL.Path),
+				utils.Field("status", wrapper.statusCode),
+				utils.Field("duration", duration),
+				utils.Field("remote_addr", r.RemoteAddr),
 			)
 		} else {
 			logger.Info(
-				"method", r.Method,
-				"path", r.URL.Path,
-				"status", wrapper.statusCode,
-				"duration", duration,
-				"remote_addr", r.RemoteAddr,
+				utils.Field("method", r.Method),
+				utils.Field("path", r.URL.Path),
+				utils.Field("status", wrapper.statusCode),
+				utils.Field("duration", duration),
+				utils.Field("remote_addr", r.RemoteAddr),
 			)
 		}
 	})

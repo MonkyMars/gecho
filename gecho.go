@@ -34,6 +34,8 @@ var NewLogger = utils.NewLogger
 var NewDefaultLogger = utils.NewDefaultLogger
 var DefaultLoggerConfig = utils.DefaultConfig
 var ParseLogLevel = utils.ParseLevel
+var Field = utils.Field
+var WithCallerSkip = utils.WithCallerSkip
 
 // Logger type
 type Logger = utils.Logger

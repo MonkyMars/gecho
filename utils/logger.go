@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"runtime"
 	"strings"
@@ -74,6 +75,7 @@ type Config struct {
 	ErrorOutput io.Writer
 	Colorize    bool
 	ShowCaller  bool
+	CallerSkip  int
 	TimeFormat  string
 }
 
@@ -86,6 +88,7 @@ func DefaultConfig() Config {
 		ErrorOutput: os.Stderr,
 		Colorize:    isTerminal(os.Stdout),
 		ShowCaller:  true,
+		CallerSkip:  2,
 		TimeFormat:  "2006-01-02 15:04:05.000",
 	}
 }
@@ -157,14 +160,34 @@ type entry struct {
 	Fields    map[string]any `json:"fields,omitempty"`
 }
 
-// log is the core logging function
-func (l *Logger) log(level Level, msg string, keyvals ...any) {
+type Option func(*entryOptions)
+
+type entryOptions struct {
+	callerSkip *int
+	fields     map[string]any
+}
+
+func WithCallerSkip(skip int) Option {
+	return func(o *entryOptions) {
+		o.callerSkip = &skip
+	}
+}
+
+func (l *Logger) log(level Level, msg string, opts []Option) {
 	if level < l.config.Level {
 		return
 	}
 
 	l.mu.Lock()
 	defer l.mu.Unlock()
+
+	o := entryOptions{
+		fields: make(map[string]any),
+	}
+
+	for _, opt := range opts {
+		opt(&o)
+	}
 
 	e := entry{
 		Timestamp: time.Now().Format(l.config.TimeFormat),
@@ -173,41 +196,38 @@ func (l *Logger) log(level Level, msg string, keyvals ...any) {
 		Fields:    make(map[string]any),
 	}
 
-	// Add persistent fields
-	for k, v := range l.fields {
-		e.Fields[k] = v
+	// Persistent fields
+	maps.Copy(e.Fields, l.fields)
+
+	// Option fields
+	maps.Copy(e.Fields, o.fields)
+
+	// Caller handling
+	callerSkip := l.config.CallerSkip
+	if o.callerSkip != nil {
+		callerSkip = *o.callerSkip
 	}
 
-	// Add caller information
 	if l.config.ShowCaller {
-		if _, file, line, ok := runtime.Caller(2); ok {
+		if _, file, line, ok := runtime.Caller(callerSkip); ok {
 			parts := strings.Split(file, "/")
 			e.Caller = fmt.Sprintf("%s:%d", parts[len(parts)-1], line)
 		}
 	}
 
-	// Parse key-value pairs
-	for i := 0; i < len(keyvals); i += 2 {
-		if i+1 < len(keyvals) {
-			key := fmt.Sprint(keyvals[i])
-			e.Fields[key] = keyvals[i+1]
-		}
-	}
-
-	// Determine output writer
+	// Output selection
 	output := l.config.Output
 	if level >= LevelError && l.config.ErrorOutput != nil {
 		output = l.config.ErrorOutput
 	}
 
-	// Write log entry
+	// Write
 	if l.config.Format == FormatJSON {
 		l.writeJSON(output, e)
 	} else {
 		l.writeText(output, level, e)
 	}
 
-	// Exit on fatal
 	if level == LevelFatal {
 		os.Exit(1)
 	}
@@ -277,28 +297,33 @@ func (l *Logger) writeJSON(w io.Writer, e entry) {
 }
 
 // Debug logs a debug level message
-func (l *Logger) Debug(msg string, keyvals ...any) {
-	l.log(LevelDebug, msg, keyvals...)
+func (l *Logger) Debug(args ...any) {
+	msg, opts := parseArgs(args...)
+	l.log(LevelDebug, msg, opts)
 }
 
 // Info logs an info level message
-func (l *Logger) Info(msg string, keyvals ...any) {
-	l.log(LevelInfo, msg, keyvals...)
+func (l *Logger) Info(args ...any) {
+	msg, opts := parseArgs(args...)
+	l.log(LevelInfo, msg, opts)
 }
 
 // Warn logs a warning level message
-func (l *Logger) Warn(msg string, keyvals ...any) {
-	l.log(LevelWarn, msg, keyvals...)
+func (l *Logger) Warn(args ...any) {
+	msg, opts := parseArgs(args...)
+	l.log(LevelWarn, msg, opts)
 }
 
 // Error logs an error level message
-func (l *Logger) Error(msg string, keyvals ...any) {
-	l.log(LevelError, msg, keyvals...)
+func (l *Logger) Error(args ...any) {
+	msg, opts := parseArgs(args...)
+	l.log(LevelError, msg, opts)
 }
 
 // Fatal logs a fatal level message and exits the program
-func (l *Logger) Fatal(msg string, keyvals ...any) {
-	l.log(LevelFatal, msg, keyvals...)
+func (l *Logger) Fatal(args ...any) {
+	msg, opts := parseArgs(args...)
+	l.log(LevelFatal, msg, opts)
 }
 
 // isTerminal checks if the writer is a terminal
@@ -311,4 +336,40 @@ func isTerminal(w io.Writer) bool {
 		return (stat.Mode() & os.ModeCharDevice) != 0
 	}
 	return false
+}
+
+func Field(key string, value any) Option {
+	return func(o *entryOptions) {
+		if o.fields == nil {
+			o.fields = make(map[string]any)
+		}
+		o.fields[key] = value
+	}
+}
+
+func parseArgs(args ...any) (string, []Option) {
+	var msg string
+	opts := make([]Option, 0, len(args))
+
+	if len(args) == 0 {
+		return "", opts
+	}
+
+	// First argument may be a message string
+	if s, ok := args[0].(string); ok {
+		msg = s
+		for _, a := range args[1:] {
+			if opt, ok := a.(Option); ok {
+				opts = append(opts, opt)
+			}
+		}
+	} else {
+		for _, a := range args {
+			if opt, ok := a.(Option); ok {
+				opts = append(opts, opt)
+			}
+		}
+	}
+
+	return msg, opts
 }
