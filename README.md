@@ -145,3 +145,7 @@ For more detailed examples and documentation, see [USAGE.md](USAGE.md).
 ## Contributing
 
 Contributions welcome:) Please open issues or pull requests and include a short description and tests for behavior changes.
+
+## Important
+
+This library is provided as is. Backward compatibility is not guaranteed. Breaking changes may occur. 
