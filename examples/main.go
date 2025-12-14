@@ -27,6 +27,12 @@ var users = map[int]User{
 }
 var nextID = 3
 
+var logger *gecho.Logger
+
+func init() {
+	logger = gecho.NewDefaultLogger()
+}
+
 func main() {
 	// Create a new ServeMux for routing
 	mux := http.NewServeMux()
@@ -86,8 +92,10 @@ func listUsers(w http.ResponseWriter) {
 		userList = append(userList, user)
 	}
 
+	logger.Info("Listing all users", gecho.Field("count", len(userList)))
+
 	gecho.Success(w,
-		gecho.WithData(map[string]interface{}{
+		gecho.WithData(map[string]any{
 			"users": userList,
 			"count": len(userList),
 		}),
