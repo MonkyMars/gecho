@@ -63,10 +63,10 @@ All responses return a consistent JSON structure:
 
 ## Available Options
 
-- `utils.WithData(data any)` - Set response data
-- `utils.WithMessage(message string)` - Override the default message
-- `utils.WithStatus(status int)` - Override the default status code
-- `utils.Send()` - Send the response immediately
+- `gecho.WithData(data any)` - Set response data
+- `gecho.WithMessage(message string)` - Override the default message
+- `gecho.WithStatus(status int)` - Override the default status code
+- `gecho.Send()` - Send the response immediately
 
 ## Common Usage Patterns
 
@@ -74,35 +74,35 @@ All responses return a consistent JSON structure:
 
 ```go
 // 200 OK
-success.Success(w, utils.WithData(userData), utils.Send())
+gecho.Success(w, gecho.WithData(userData), gecho.Send())
 
 // 201 Created
-success.Created(w, utils.WithData(newResource), utils.Send())
+gecho.Created(w, gecho.WithData(newResource), gecho.Send())
 
 // 202 Accepted
-success.Accepted(w, utils.Send())
+gecho.Accepted(w, gecho.Send())
 
 // 204 No Content
-success.NoContent(w, utils.Send())
+gecho.NoContent(w, gecho.Send())
 ```
 
 ### Error Responses
 
 ```go
 // 400 Bad Request
-errors.BadRequest(w, utils.WithData(validationErrors), utils.Send())
+gecho.BadRequest(w, gecho.WithData(validationErrors), gecho.Send())
 
 // 401 Unauthorized
-errors.Unauthorized(w, utils.Send())
+gecho.Unauthorized(w, gecho.Send())
 
 // 403 Forbidden
-errors.Forbidden(w, utils.Send())
+gecho.Forbidden(w, gecho.Send())
 
 // 404 Not Found
-errors.NotFound(w, utils.Send())
+gecho.NotFound(w, gecho.Send())
 
 // 500 Internal Server Error
-errors.InternalServerError(w, utils.Send())
+gecho.InternalServerError(w, gecho.Send())
 ```
 
 ### Full Example
