@@ -74,6 +74,7 @@ var (
 
 // Log formats
 var (
-	LogFormatText = utils.FormatText
-	LogFormatJSON = utils.FormatJSON
+	LogFormatText   = utils.FormatText
+	LogFormatJSON   = utils.FormatJSON
+	LogFormatPretty = utils.FormatPretty
 )

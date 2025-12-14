@@ -65,6 +65,7 @@ type Format int
 const (
 	FormatText Format = iota
 	FormatJSON
+	FormatPretty
 )
 
 // Config contains logger configuration
@@ -83,7 +84,7 @@ type Config struct {
 func DefaultConfig() Config {
 	return Config{
 		Level:       LevelInfo,
-		Format:      FormatText,
+		Format:      FormatPretty,
 		Output:      os.Stdout,
 		ErrorOutput: os.Stderr,
 		Colorize:    isTerminal(os.Stdout),
@@ -204,20 +205,26 @@ func (l *Logger) SetFormat(format Format) {
 	l.config.Format = format
 }
 
+// fieldPair represents a key-value pair to preserve order
+type fieldPair struct {
+	Key   string
+	Value any
+}
+
 // entry represents a single log entry
 type entry struct {
-	Timestamp string         `json:"timestamp"`
-	Level     string         `json:"level"`
-	Message   string         `json:"message"`
-	Caller    string         `json:"caller,omitempty"`
-	Fields    map[string]any `json:"fields,omitempty"`
+	Timestamp string      `json:"timestamp"`
+	Level     string      `json:"level"`
+	Message   string      `json:"message"`
+	Caller    string      `json:"caller,omitempty"`
+	Fields    []fieldPair `json:"fields,omitempty"`
 }
 
 type Option func(*entryOptions)
 
 type entryOptions struct {
 	callerSkip *int
-	fields     map[string]any
+	fields     []fieldPair
 }
 
 func WithCallerSkip(skip int) Option {
@@ -235,7 +242,7 @@ func (l *Logger) log(level Level, msg string, opts []Option) {
 	defer l.mu.Unlock()
 
 	o := entryOptions{
-		fields: make(map[string]any),
+		fields: make([]fieldPair, 0),
 	}
 
 	for _, opt := range opts {
@@ -246,14 +253,16 @@ func (l *Logger) log(level Level, msg string, opts []Option) {
 		Timestamp: time.Now().Format(l.config.TimeFormat),
 		Level:     level.String(),
 		Message:   msg,
-		Fields:    make(map[string]any),
+		Fields:    make([]fieldPair, 0),
 	}
 
 	// Persistent fields
-	maps.Copy(e.Fields, l.fields)
+	for k, v := range l.fields {
+		e.Fields = append(e.Fields, fieldPair{Key: k, Value: v})
+	}
 
-	// Option fields
-	maps.Copy(e.Fields, o.fields)
+	// Option fields (preserve order)
+	e.Fields = append(e.Fields, o.fields...)
 
 	// Caller handling
 	callerSkip := l.config.CallerSkip
@@ -277,6 +286,8 @@ func (l *Logger) log(level Level, msg string, opts []Option) {
 	// Write
 	if l.config.Format == FormatJSON {
 		l.writeJSON(output, e)
+	} else if l.config.Format == FormatPretty {
+		l.writePretty(output, level, e)
 	} else {
 		l.writeText(output, level, e)
 	}
@@ -327,15 +338,13 @@ func (l *Logger) writeText(w io.Writer, level Level, e entry) {
 	// Fields
 	if len(e.Fields) > 0 {
 		sb.WriteString(" {")
-		first := true
-		for k, v := range e.Fields {
-			if !first {
+		for i, f := range e.Fields {
+			if i > 0 {
 				sb.WriteString(", ")
 			}
-			sb.WriteString(k)
+			sb.WriteString(f.Key)
 			sb.WriteString("=")
-			sb.WriteString(fmt.Sprint(v))
-			first = false
+			sb.WriteString(fmt.Sprint(f.Value))
 		}
 		sb.WriteString("}")
 	}
@@ -345,8 +354,82 @@ func (l *Logger) writeText(w io.Writer, level Level, e entry) {
 
 // writeJSON writes the entry in JSON format
 func (l *Logger) writeJSON(w io.Writer, e entry) {
-	data, _ := json.Marshal(e)
+	// Convert fields to map for JSON output
+	fieldsMap := make(map[string]any)
+	for _, f := range e.Fields {
+		fieldsMap[f.Key] = f.Value
+	}
+
+	jsonEntry := struct {
+		Timestamp string         `json:"timestamp"`
+		Level     string         `json:"level"`
+		Message   string         `json:"message"`
+		Caller    string         `json:"caller,omitempty"`
+		Fields    map[string]any `json:"fields,omitempty"`
+	}{
+		Timestamp: e.Timestamp,
+		Level:     e.Level,
+		Message:   e.Message,
+		Caller:    e.Caller,
+		Fields:    fieldsMap,
+	}
+
+	data, _ := json.Marshal(jsonEntry)
 	fmt.Fprintln(w, string(data))
+}
+
+// writePretty writes the entry in pretty format with parentheses around key-value pairs
+func (l *Logger) writePretty(w io.Writer, level Level, e entry) {
+	var sb strings.Builder
+
+	// Timestamp (shortened format)
+	timestamp := e.Timestamp
+	if len(timestamp) > 18 {
+		// Extract just the time portion from "2006-01-02 15:04:05.000"
+		parts := strings.Split(timestamp, " ")
+		if len(parts) >= 2 {
+			timestamp = parts[1][:12] // "15:04:05.000"
+		}
+	}
+	sb.WriteString(timestamp)
+	sb.WriteString("  ")
+
+	// Level with optional color
+	if l.config.Colorize {
+		sb.WriteString(levelColors[level])
+	}
+	sb.WriteString(fmt.Sprintf("%-5s", e.Level))
+	if l.config.Colorize {
+		sb.WriteString(colorReset)
+	}
+	sb.WriteString("  ")
+
+	// Message
+	if e.Message != "" {
+		sb.WriteString(e.Message)
+	}
+
+	// Fields in parentheses format (preserves order)
+	if len(e.Fields) > 0 {
+		if e.Message != "" {
+			sb.WriteString(" ")
+		}
+		for _, f := range e.Fields {
+			sb.WriteString("(")
+			sb.WriteString(f.Key)
+			sb.WriteString("=")
+			sb.WriteString(fmt.Sprint(f.Value))
+			sb.WriteString(") ")
+		}
+	}
+
+	// Caller at the end if present
+	if e.Caller != "" {
+		sb.WriteString(" ")
+		sb.WriteString(e.Caller)
+	}
+
+	fmt.Fprintln(w, strings.TrimRight(sb.String(), " "))
 }
 
 // Debug logs a debug level message
@@ -394,9 +477,9 @@ func isTerminal(w io.Writer) bool {
 func Field(key string, value any) Option {
 	return func(o *entryOptions) {
 		if o.fields == nil {
-			o.fields = make(map[string]any)
+			o.fields = make([]fieldPair, 0)
 		}
-		o.fields[key] = value
+		o.fields = append(o.fields, fieldPair{Key: key, Value: value})
 	}
 }
 
