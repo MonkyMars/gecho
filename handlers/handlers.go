@@ -17,7 +17,8 @@ func NewHandlers() *Handlers {
 
 func (h *Handlers) HandleMethod(w http.ResponseWriter, r *http.Request, intendedMethod string) error {
 	if r.Method != intendedMethod {
-		return errors.MethodNotAllowed(w, utils.Send(), utils.WithMessage(fmt.Sprintf("Method %s not allowed", r.Method)))
+		errors.MethodNotAllowed(w, utils.Send(), utils.WithMessage(fmt.Sprintf("Method %s not allowed", r.Method)))
+		return fmt.Errorf("method %s not allowed", r.Method)
 	}
 	return nil
 }

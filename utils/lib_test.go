@@ -10,15 +10,12 @@ import (
 
 func TestExtractResponseBody(t *testing.T) {
 	w := httptest.NewRecorder()
-	err := NewOK(w,
+	NewOK(w,
 		WithMessage("Extract Test"),
 		WithData(map[string]string{"extract": "test"}),
 		WithStatus(http.StatusOK),
 		Send(),
 	)
-	if err != nil {
-		t.Errorf("Expected no error on Send(), got %v", err)
-	}
 
 	resp := w.Result()
 
@@ -85,14 +82,10 @@ func TestWriteJSON_NilWriter(t *testing.T) {
 
 func TestNewResponseBuilder(t *testing.T) {
 	w := httptest.NewRecorder()
-	err := NewOK(w,
+	NewOK(w,
 		WithStatus(http.StatusOK),
 		Send(),
 	)
-
-	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
-	}
 
 	var response NewResponse
 	if err := json.NewDecoder(w.Result().Body).Decode(&response); err != nil {

@@ -8,7 +8,7 @@ import (
 
 // Success sends a 200 OK response with optional configuration
 // Example: success.Success(w, gecho.WithData(userData), gecho.Send())
-func Success(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+func Success(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusOK),
 		utils.WithMessage("Success"),
@@ -19,7 +19,7 @@ func Success(w http.ResponseWriter, opts ...utils.ResponseOption) error {
 
 // Created sends a 201 Created response with optional configuration
 // Example: success.Created(w, gecho.WithData(newResource), gecho.Send())
-func Created(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+func Created(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusCreated),
 		utils.WithMessage("Resource Created"),
@@ -30,7 +30,7 @@ func Created(w http.ResponseWriter, opts ...utils.ResponseOption) error {
 
 // Accepted sends a 202 Accepted response with optional configuration
 // Example: success.Accepted(w, gecho.WithMessage("Request accepted for processing"), gecho.Send())
-func Accepted(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+func Accepted(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusAccepted),
 		utils.WithMessage("Accepted"),
@@ -41,7 +41,7 @@ func Accepted(w http.ResponseWriter, opts ...utils.ResponseOption) error {
 
 // NoContent sends a 204 No Content response with optional configuration
 // Example: success.NoContent(w, gecho.Send())
-func NoContent(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+func NoContent(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusNoContent),
 		utils.WithMessage("No Content"),

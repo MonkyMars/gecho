@@ -7,7 +7,8 @@ import (
 	"github.com/MonkyMars/gecho/utils"
 )
 
-// Response option type
+// Response types
+type Response = utils.Response
 type ResponseOption = utils.ResponseOption
 
 // Response option functions

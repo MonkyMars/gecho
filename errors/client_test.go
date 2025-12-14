@@ -11,10 +11,7 @@ import (
 
 func TestBadRequest(t *testing.T) {
 	w := httptest.NewRecorder()
-	err := BadRequest(w, utils.WithData(map[string]string{"field": "invalid"}), utils.Send())
-	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
-	}
+	BadRequest(w, utils.WithData(map[string]string{"field": "invalid"}), utils.Send())
 
 	resp := w.Result()
 	if resp.StatusCode != http.StatusBadRequest {
@@ -37,10 +34,7 @@ func TestBadRequest(t *testing.T) {
 
 func TestUnauthorized(t *testing.T) {
 	w := httptest.NewRecorder()
-	err := Unauthorized(w, utils.Send())
-	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
-	}
+	Unauthorized(w, utils.Send())
 
 	resp := w.Result()
 	if resp.StatusCode != http.StatusUnauthorized {
@@ -59,10 +53,7 @@ func TestUnauthorized(t *testing.T) {
 
 func TestForbidden(t *testing.T) {
 	w := httptest.NewRecorder()
-	err := Forbidden(w, utils.Send())
-	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
-	}
+	Forbidden(w, utils.Send())
 
 	resp := w.Result()
 	if resp.StatusCode != http.StatusForbidden {
@@ -81,10 +72,7 @@ func TestForbidden(t *testing.T) {
 
 func TestNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
-	err := NotFound(w, utils.Send())
-	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
-	}
+	NotFound(w, utils.Send())
 
 	resp := w.Result()
 	if resp.StatusCode != http.StatusNotFound {
@@ -103,10 +91,7 @@ func TestNotFound(t *testing.T) {
 
 func TestMethodNotAllowed(t *testing.T) {
 	w := httptest.NewRecorder()
-	err := MethodNotAllowed(w, utils.Send())
-	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
-	}
+	MethodNotAllowed(w, utils.Send())
 
 	resp := w.Result()
 	if resp.StatusCode != http.StatusMethodNotAllowed {

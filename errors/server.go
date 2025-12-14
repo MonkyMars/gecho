@@ -8,7 +8,7 @@ import (
 
 // InternalServerError sends a 500 Internal Server Error response with optional configuration
 // Example: errors.InternalServerError(w, gecho.Send())
-func InternalServerError(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+func InternalServerError(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusInternalServerError),
 		utils.WithMessage(utils.InternalServerErrorMessage),
@@ -19,7 +19,7 @@ func InternalServerError(w http.ResponseWriter, opts ...utils.ResponseOption) er
 
 // ServiceUnavailable sends a 503 Service Unavailable response with optional configuration
 // Example: errors.ServiceUnavailable(w, gecho.WithMessage("Maintenance mode"), gecho.Send())
-func ServiceUnavailable(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+func ServiceUnavailable(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusServiceUnavailable),
 		utils.WithMessage(utils.ServiceUnavailableMessage),

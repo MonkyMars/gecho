@@ -96,13 +96,11 @@ func listUsers(w http.ResponseWriter) {
 
 	logger.Info("Listing all users", gecho.Field("count", len(userList)))
 
-	gecho.Success(w,
-		gecho.WithData(map[string]any{
-			"users": userList,
-			"count": len(userList),
-		}),
-		gecho.Send(),
-	)
+	responseData := map[string]any{
+		"users": userList,
+		"count": len(userList),
+	}
+	gecho.Success(w).SetData(responseData).SetMessage("Users retrieved successfully").Send()
 }
 
 // Create a new user

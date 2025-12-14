@@ -8,7 +8,7 @@ import (
 
 // BadRequest sends a 400 Bad Request response with optional configuration
 // Example: errors.BadRequest(w, gecho.WithData(validationErrors), gecho.Send())
-func BadRequest(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+func BadRequest(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusBadRequest),
 		utils.WithMessage(utils.BadRequestMessage),
@@ -19,7 +19,7 @@ func BadRequest(w http.ResponseWriter, opts ...utils.ResponseOption) error {
 
 // Unauthorized sends a 401 Unauthorized response with optional configuration
 // Example: errors.Unauthorized(w, gecho.Send())
-func Unauthorized(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+func Unauthorized(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusUnauthorized),
 		utils.WithMessage(utils.UnauthorizedMessage),
@@ -30,7 +30,7 @@ func Unauthorized(w http.ResponseWriter, opts ...utils.ResponseOption) error {
 
 // Forbidden sends a 403 Forbidden response with optional configuration
 // Example: errors.Forbidden(w, gecho.WithMessage("Access denied"), gecho.Send())
-func Forbidden(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+func Forbidden(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusForbidden),
 		utils.WithMessage(utils.ForbiddenMessage),
@@ -41,7 +41,7 @@ func Forbidden(w http.ResponseWriter, opts ...utils.ResponseOption) error {
 
 // NotFound sends a 404 Not Found response with optional configuration
 // Example: errors.NotFound(w, gecho.Send())
-func NotFound(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+func NotFound(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusNotFound),
 		utils.WithMessage(utils.NotFoundMessage),
@@ -52,7 +52,7 @@ func NotFound(w http.ResponseWriter, opts ...utils.ResponseOption) error {
 
 // MethodNotAllowed sends a 405 Method Not Allowed response with optional configuration
 // Example: errors.MethodNotAllowed(w, gecho.Send())
-func MethodNotAllowed(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+func MethodNotAllowed(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusMethodNotAllowed),
 		utils.WithMessage(utils.MethodNotAllowedMessage),
@@ -63,7 +63,7 @@ func MethodNotAllowed(w http.ResponseWriter, opts ...utils.ResponseOption) error
 
 // Conflict sends a 409 Conflict response with optional configuration
 // Example: errors.Conflict(w, gecho.WithMessage("Resource already exists"), gecho.Send())
-func Conflict(w http.ResponseWriter, opts ...utils.ResponseOption) error {
+func Conflict(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusConflict),
 		utils.WithMessage(utils.ConflictMessage),

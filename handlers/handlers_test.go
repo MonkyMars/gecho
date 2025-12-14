@@ -106,8 +106,8 @@ func TestIncorrectMethodHandlers(t *testing.T) {
 
 		handlers := NewHandlers()
 		err := handlers.HandleMethod(w, r, http.MethodPost)
-		if err != nil {
-			t.Errorf("Expected no error, got %v", err)
+		if err == nil {
+			t.Errorf("Expected error, got nil")
 		}
 
 		if w.Result().StatusCode != http.StatusMethodNotAllowed {
@@ -133,8 +133,8 @@ func TestIncorrectMethodHandlers(t *testing.T) {
 
 		handlers := NewHandlers()
 		err := handlers.HandleMethod(w, r, http.MethodGet)
-		if err != nil {
-			t.Errorf("Expected no error, got %v", err)
+		if err == nil {
+			t.Errorf("Expected error, got nil")
 		}
 
 		if w.Result().StatusCode != http.StatusMethodNotAllowed {
@@ -159,8 +159,8 @@ func TestIncorrectMethodHandlers(t *testing.T) {
 
 		handlers := NewHandlers()
 		err := handlers.HandleMethod(w, r, http.MethodDelete)
-		if err != nil {
-			t.Errorf("Expected no error, got %v", err)
+		if err == nil {
+			t.Errorf("Expected error, got nil")
 		}
 
 		if w.Result().StatusCode != http.StatusMethodNotAllowed {

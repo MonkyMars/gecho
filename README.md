@@ -63,7 +63,43 @@ func handler(w http.ResponseWriter, r *http.Request) {
 - `WithData(data any)` - Add data to response
 - `WithMessage(msg string)` - Override default message
 - `WithStatus(code int)` - Override default status code
-- `Send()` - Send the response (required)
+- `Send()` - Send the response immediately
+
+### Modifying Responses
+
+Responses can be modified after creation and sent later:
+
+```go
+func handler(w http.ResponseWriter, r *http.Request) {
+    // Create response without sending
+    resp := gecho.Success(w, gecho.WithData(userData))
+    
+    // Modify conditionally
+    if user.IsAdmin {
+        resp.SetMessage("Admin user found")
+        resp.AddData("role", "admin")
+    }
+    
+    // Send when ready
+    resp.Send()
+}
+```
+
+**Response Methods:**
+- `SetMessage(msg string)` - Change the message
+- `SetStatus(code int)` - Change the status code
+- `SetData(data any)` - Replace all data
+- `AddData(key, value)` - Add a single field to data
+- `Send()` - Send the response
+
+**Chaining:**
+
+```go
+gecho.Created(w, gecho.WithData(user)).
+    SetMessage("User created and email sent").
+    AddData("email_sent", true).
+    Send()
+```
 
 ### Response Format
 
@@ -213,10 +249,10 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
         {"id": 2, "name": "Bob"},
     }
     
-    gecho.Success(w,
-        gecho.WithData(map[string]any{"users": users}),
-        gecho.Send(),
-    )
+    // Create response and modify before sending
+    resp := gecho.Success(w, gecho.WithData(map[string]any{"users": users}))
+    resp.AddData("count", len(users))
+    resp.Send()
 }
 ```
 

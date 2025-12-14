@@ -12,7 +12,7 @@ import (
 func TestCorrectSuccessResponses(t *testing.T) {
 	tests := []struct {
 		name           string
-		fn             func(http.ResponseWriter, ...utils.ResponseOption) error
+		fn             func(http.ResponseWriter, ...utils.ResponseOption) *utils.Response
 		expectedStatus int
 		expectedMsg    string
 	}{
@@ -45,10 +45,7 @@ func TestCorrectSuccessResponses(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			err := tt.fn(w, utils.Send())
-			if err != nil {
-				t.Errorf("Expected no error, got %v", err)
-			}
+			tt.fn(w, utils.Send())
 
 			resp := w.Result()
 			if resp.StatusCode != tt.expectedStatus {

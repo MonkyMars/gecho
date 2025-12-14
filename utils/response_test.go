@@ -250,13 +250,13 @@ func TestWithStatus(t *testing.T) {
 func TestWithoutSend(t *testing.T) {
 	w := httptest.NewRecorder()
 	// Without Send(), the response should not be written
-	err := NewOK(w,
+	resp := NewOK(w,
 		WithMessage("Not sent"),
 		WithData(map[string]string{"key": "value"}),
 	)
 
-	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
+	if resp == nil {
+		t.Errorf("Expected Response object, got nil")
 	}
 
 	// Response should be empty since Send() was not called
