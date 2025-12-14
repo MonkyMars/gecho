@@ -382,26 +382,33 @@ func (l *Logger) writeJSON(w io.Writer, e entry) {
 func (l *Logger) writePretty(w io.Writer, level Level, e entry) {
 	var sb strings.Builder
 
+	levelColor := levelColors[level]
+	colorize := l.config.Colorize
+
+	// Helper function to write with optional color
+	writeColored := func(color, text string) {
+		if colorize {
+			sb.WriteString(color)
+		}
+		sb.WriteString(text)
+		if colorize {
+			sb.WriteString(colorReset)
+		}
+	}
+
 	// Timestamp (shortened format)
 	timestamp := e.Timestamp
 	if len(timestamp) > 18 {
 		// Extract just the time portion from "2006-01-02 15:04:05.000"
-		parts := strings.Split(timestamp, " ")
-		if len(parts) >= 2 {
+		if parts := strings.Split(timestamp, " "); len(parts) >= 2 {
 			timestamp = parts[1][:12] // "15:04:05.000"
 		}
 	}
-	sb.WriteString(timestamp)
+	writeColored("\033[90m", timestamp) // Gray
 	sb.WriteString("  ")
 
 	// Level with optional color
-	if l.config.Colorize {
-		sb.WriteString(levelColors[level])
-	}
-	sb.WriteString(fmt.Sprintf("%-5s", e.Level))
-	if l.config.Colorize {
-		sb.WriteString(colorReset)
-	}
+	writeColored(levelColor, fmt.Sprintf("%-5s", e.Level))
 	sb.WriteString("  ")
 
 	// Message
@@ -415,18 +422,36 @@ func (l *Logger) writePretty(w io.Writer, level Level, e entry) {
 			sb.WriteString(" ")
 		}
 		for _, f := range e.Fields {
+			if colorize {
+				sb.WriteString(levelColor)
+			}
 			sb.WriteString("(")
+			if colorize {
+				sb.WriteString(colorReset)
+			}
 			sb.WriteString(f.Key)
+			if colorize {
+				sb.WriteString("\033[94m") // Light blue
+			}
 			sb.WriteString("=")
+			if colorize {
+				sb.WriteString(colorReset)
+			}
 			sb.WriteString(fmt.Sprint(f.Value))
+			if colorize {
+				sb.WriteString(levelColor)
+			}
 			sb.WriteString(") ")
+			if colorize {
+				sb.WriteString(colorReset)
+			}
 		}
 	}
 
 	// Caller at the end if present
 	if e.Caller != "" {
 		sb.WriteString(" ")
-		sb.WriteString(e.Caller)
+		writeColored("\033[38;5;208m", fmt.Sprintf("[%s]", e.Caller)) // Orange
 	}
 
 	fmt.Fprintln(w, strings.TrimRight(sb.String(), " "))

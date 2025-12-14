@@ -41,7 +41,9 @@ func main() {
 	mux.HandleFunc("/health", healthHandler)
 
 	// Wrap the mux with logging middleware
-	logger := gecho.NewLogger(gecho.NewConfig(gecho.WithShowCaller(false)))
+	logLevel := gecho.ParseLogLevel("debug")
+	logger := gecho.NewLogger(gecho.NewConfig(gecho.WithShowCaller(true)))
+	logger.SetLevel(logLevel)
 	loggedHandler := gecho.Handlers.HandleLogging(mux, logger)
 
 	fmt.Println("Server starting on :8080")
