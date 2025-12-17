@@ -71,3 +71,14 @@ func Conflict(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Respon
 	allOpts = append(allOpts, opts...)
 	return utils.NewErr(w, allOpts...)
 }
+
+// Too ManyRequests sends a 429 Too Many Requests response with optional configuration
+// Example: errors.TooManyRequests(w, gecho.WithMessage("Rate limit exceeded"), gecho.Send())
+func TooManyRequests(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
+	allOpts := []utils.ResponseOption{
+		utils.WithStatus(http.StatusTooManyRequests),
+		utils.WithMessage(utils.TooManyRequestsMessage),
+	}
+	allOpts = append(allOpts, opts...)
+	return utils.NewErr(w, allOpts...)
+}
