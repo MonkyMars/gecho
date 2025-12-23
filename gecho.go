@@ -28,6 +28,7 @@ var Forbidden = errors.Forbidden
 var NotFound = errors.NotFound
 var MethodNotAllowed = errors.MethodNotAllowed
 var Conflict = errors.Conflict
+var TooManyRequests = errors.TooManyRequests
 
 // Exported Server Error Functions
 var InternalServerError = errors.InternalServerError
