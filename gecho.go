@@ -30,15 +30,22 @@ var Forbidden = errors.Forbidden
 var NotFound = errors.NotFound
 var MethodNotAllowed = errors.MethodNotAllowed
 var Conflict = errors.Conflict
+var Gone = errors.Gone
+var UnprocessableEntity = errors.UnprocessableEntity
 var TooManyRequests = errors.TooManyRequests
 
 // Exported Server Error Functions
 var InternalServerError = errors.InternalServerError
+var NotImplemented = errors.NotImplemented
+var BadGateway = errors.BadGateway
 var ServiceUnavailable = errors.ServiceUnavailable
+var GatewayTimeout = errors.GatewayTimeout
 
 // Exported Success Functions
 var Success = success.Success
 var Created = success.Created
+var Accepted = success.Accepted
+var NoContent = success.NoContent
 
 // Exported built-in handlers
 var Handlers = handlers.NewHandlers()

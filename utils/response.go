@@ -139,6 +139,32 @@ func (r *Response) AddData(key string, value any) *Response {
 	return r
 }
 
+// SetHeader sets a single response header. It can be chained with other methods.
+func (r *Response) SetHeader(key, value string) *Response {
+	if r == nil {
+		return nil
+	}
+	if r.headers == nil {
+		r.headers = make(map[string]string)
+	}
+	r.headers[key] = value
+	return r
+}
+
+// SetHeaders sets multiple response headers at once. It can be chained with other methods.
+func (r *Response) SetHeaders(headers map[string]string) *Response {
+	if r == nil {
+		return nil
+	}
+	if r.headers == nil {
+		r.headers = make(map[string]string)
+	}
+	for key, value := range headers {
+		r.headers[key] = value
+	}
+	return r
+}
+
 // Send writes the response to the HTTP response writer
 func (r *Response) Send() error {
 	if r == nil {
@@ -180,7 +206,9 @@ func buildResponse(w http.ResponseWriter, defaultStatus int, isError bool, defau
 	// Set data as-is
 	resp.data = config.data
 
-	// Auto-send if Send() option was provided
+	// Auto-send if Send() option was provided.
+	// Note: write errors here cannot be surfaced through the return value.
+	// For error handling on write, use the fluent Response.Send() method instead.
 	if config.send {
 		resp.Send()
 		return nil

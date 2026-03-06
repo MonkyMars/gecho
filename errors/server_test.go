@@ -46,3 +46,64 @@ func TestServiceUnavailable(t *testing.T) {
 		t.Errorf("Expected message '%s', got '%s'", utils.ServiceUnavailableMessage, response.Message())
 	}
 }
+
+func TestNotImplemented(t *testing.T) {
+	w := httptest.NewRecorder()
+	NotImplemented(w, utils.Send())
+
+	resp := w.Result()
+	if resp.StatusCode != http.StatusNotImplemented {
+		t.Errorf("Expected status code %d, got %d", http.StatusNotImplemented, resp.StatusCode)
+	}
+
+	var response utils.NewResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	if response.Message() != utils.NotImplementedMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.NotImplementedMessage, response.Message())
+	}
+
+	if response.Success() {
+		t.Errorf("Expected success to be false for NotImplemented response")
+	}
+}
+
+func TestBadGateway(t *testing.T) {
+	w := httptest.NewRecorder()
+	BadGateway(w, utils.Send())
+
+	resp := w.Result()
+	if resp.StatusCode != http.StatusBadGateway {
+		t.Errorf("Expected status code %d, got %d", http.StatusBadGateway, resp.StatusCode)
+	}
+
+	var response utils.NewResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	if response.Message() != utils.BadGatewayMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.BadGatewayMessage, response.Message())
+	}
+}
+
+func TestGatewayTimeout(t *testing.T) {
+	w := httptest.NewRecorder()
+	GatewayTimeout(w, utils.Send())
+
+	resp := w.Result()
+	if resp.StatusCode != http.StatusGatewayTimeout {
+		t.Errorf("Expected status code %d, got %d", http.StatusGatewayTimeout, resp.StatusCode)
+	}
+
+	var response utils.NewResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	if response.Message() != utils.GatewayTimeoutMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.GatewayTimeoutMessage, response.Message())
+	}
+}
