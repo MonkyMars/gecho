@@ -97,10 +97,15 @@ func (nr *NewResponse) UnmarshalJSON(b []byte) error {
 }
 
 // writeJSON writes a JSON response to the http.ResponseWriter
-func writeJSON(w http.ResponseWriter, status int, success bool, message string, data any) error {
+func writeJSON(w http.ResponseWriter, status int, success bool, message string, headers map[string]string, data any) error {
 	if w == nil {
 		panic("http.ResponseWriter is nil")
 	}
+
+	for key, value := range headers {
+		w.Header().Set(key, value)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(NewResponse{

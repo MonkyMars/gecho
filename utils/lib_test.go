@@ -41,7 +41,7 @@ func TestExtractResponseBody(t *testing.T) {
 
 func TestWriteJson(t *testing.T) {
 	w := httptest.NewRecorder()
-	err := writeJSON(w, http.StatusTeapot, true, "I'm a teapot", map[string]string{"tea": "yes"})
+	err := writeJSON(w, http.StatusTeapot, true, "I'm a teapot", map[string]string{"tea": "yes"}, map[string]any{"tea": "yes"})
 	if err != nil {
 		t.Errorf("Expected no error on writeJSON(), got %v", err)
 	}
@@ -77,7 +77,7 @@ func TestWriteJSON_NilWriter(t *testing.T) {
 		}
 	}()
 
-	_ = writeJSON(nil, http.StatusOK, true, "This should panic", nil)
+	_ = writeJSON(nil, http.StatusOK, true, "This should panic", nil, nil)
 }
 
 func TestNewResponseBuilder(t *testing.T) {

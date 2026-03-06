@@ -11,6 +11,7 @@ type Response struct {
 	success bool
 	message string
 	data    any
+	headers map[string]string
 }
 
 // ResponseOption is a function that configures a response
@@ -24,6 +25,7 @@ type responseConfig struct {
 	message string
 	data    any
 	send    bool
+	headers map[string]string
 }
 
 // WithData sets the response data
@@ -44,6 +46,22 @@ func WithMessage(message string) ResponseOption {
 func WithStatus(status int) ResponseOption {
 	return func(rc *responseConfig) {
 		rc.status = status
+	}
+}
+
+// WithHeader adds a header to the response
+func WithHeader(key, value string) ResponseOption {
+	return func(rc *responseConfig) {
+		rc.headers[key] = value
+	}
+}
+
+// WithHeaders adds multiple headers to the response
+func WithHeaders(headers map[string]string) ResponseOption {
+	return func(rc *responseConfig) {
+		for key, value := range headers {
+			rc.headers[key] = value
+		}
 	}
 }
 
@@ -127,7 +145,7 @@ func (r *Response) Send() error {
 		return nil
 	}
 
-	return writeJSON(r.w, r.status, r.success, r.message, r.data)
+	return writeJSON(r.w, r.status, r.success, r.message, r.headers, r.data)
 }
 
 // buildResponse applies all options and returns a Response object
@@ -141,6 +159,7 @@ func buildResponse(w http.ResponseWriter, defaultStatus int, isError bool, defau
 		message: defaultMessage,
 		data:    nil,
 		send:    false,
+		headers: make(map[string]string),
 	}
 
 	// Apply all options
@@ -155,6 +174,7 @@ func buildResponse(w http.ResponseWriter, defaultStatus int, isError bool, defau
 		success: config.success,
 		message: config.message,
 		data:    nil,
+		headers: config.headers,
 	}
 
 	// Set data as-is

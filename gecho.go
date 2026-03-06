@@ -15,6 +15,8 @@ type ResponseOption = utils.ResponseOption
 var WithData = utils.WithData
 var WithMessage = utils.WithMessage
 var WithStatus = utils.WithStatus
+var WithHeader = utils.WithHeader
+var WithHeaders = utils.WithHeaders
 var Send = utils.Send
 
 // Exported fluent API Functions

@@ -68,6 +68,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 			"status":  "healthy",
 			"version": "1.0.0",
 		}),
+		gecho.WithMessage("Health check passed"),
 		gecho.Send(),
 	)
 }
