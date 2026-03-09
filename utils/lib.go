@@ -53,14 +53,6 @@ func getTimestamp() time.Time {
 // MarshalJSON implements custom marshaling for NewResponse so we can keep
 // fields unexported but still produce JSON with exported keys.
 func (nr NewResponse) MarshalJSON() ([]byte, error) {
-	type jsonResp struct {
-		Status    int       `json:"status"`
-		Success   bool      `json:"success"`
-		Message   string    `json:"message"`
-		Data      any       `json:"data"`
-		Timestamp time.Time `json:"timestamp"`
-	}
-
 	jr := jsonResp{
 		Status:    nr.status,
 		Success:   nr.success,
@@ -74,14 +66,6 @@ func (nr NewResponse) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements custom unmarshaling into the unexported fields of NewResponse.
 func (nr *NewResponse) UnmarshalJSON(b []byte) error {
-	type jsonResp struct {
-		Status    int       `json:"status"`
-		Success   bool      `json:"success"`
-		Message   string    `json:"message"`
-		Data      any       `json:"data"`
-		Timestamp time.Time `json:"timestamp"`
-	}
-
 	var jr jsonResp
 	if err := json.Unmarshal(b, &jr); err != nil {
 		return err
