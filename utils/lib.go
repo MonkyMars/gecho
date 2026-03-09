@@ -25,6 +25,14 @@ type NewResponse struct {
 	timestamp time.Time // Unix timestamp of when the response was generated
 }
 
+type jsonResp struct {
+	Status    int       `json:"status"`
+	Success   bool      `json:"success"`
+	Message   string    `json:"message"`
+	Data      any       `json:"data,omitempty"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
 func (nr *NewResponse) Status() int {
 	return nr.status
 }
