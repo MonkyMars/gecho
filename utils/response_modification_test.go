@@ -265,4 +265,53 @@ func TestResponseModification(t *testing.T) {
 			t.Errorf("Expected message 'Immediate send', got '%s'", response.Message())
 		}
 	})
+
+	t.Run("SetHeader", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		NewOK(w).SetHeader("X-Request-ID", "abc123").Send()
+
+		if w.Header().Get("X-Request-ID") != "abc123" {
+			t.Errorf("Expected X-Request-ID 'abc123', got '%s'", w.Header().Get("X-Request-ID"))
+		}
+	})
+
+	t.Run("SetHeaders", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		NewOK(w).SetHeaders(map[string]string{
+			"X-Trace-ID":  "trace-42",
+			"X-Custom":    "custom-val",
+		}).Send()
+
+		if w.Header().Get("X-Trace-ID") != "trace-42" {
+			t.Errorf("Expected X-Trace-ID 'trace-42', got '%s'", w.Header().Get("X-Trace-ID"))
+		}
+		if w.Header().Get("X-Custom") != "custom-val" {
+			t.Errorf("Expected X-Custom 'custom-val', got '%s'", w.Header().Get("X-Custom"))
+		}
+	})
+
+	t.Run("SetHeaderChained", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		NewOK(w).
+			SetMessage("with headers").
+			SetHeader("X-Version", "v1").
+			SetHeader("X-Env", "test").
+			Send()
+
+		if w.Header().Get("X-Version") != "v1" {
+			t.Errorf("Expected X-Version 'v1', got '%s'", w.Header().Get("X-Version"))
+		}
+		if w.Header().Get("X-Env") != "test" {
+			t.Errorf("Expected X-Env 'test', got '%s'", w.Header().Get("X-Env"))
+		}
+	})
+
+	t.Run("SetHeaderNilSafety", func(t *testing.T) {
+		var resp *Response = nil
+		resp = resp.SetHeader("X-Key", "val")
+		resp = resp.SetHeaders(map[string]string{"X-Key2": "val2"})
+		if resp != nil {
+			t.Errorf("Expected nil response to remain nil after SetHeader/SetHeaders")
+		}
+	})
 }

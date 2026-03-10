@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -15,6 +16,11 @@ const ForbiddenMessage = "Forbidden"
 const MethodNotAllowedMessage = "Method not allowed"
 const ConflictMessage = "Conflict"
 const TooManyRequestsMessage = "Too many requests"
+const GoneMessage = "Resource gone"
+const UnprocessableEntityMessage = "Unprocessable entity"
+const NotImplementedMessage = "Not implemented"
+const BadGatewayMessage = "Bad gateway"
+const GatewayTimeoutMessage = "Gateway timeout"
 
 // NewResponse is a struct that holds the response data for API responses
 type NewResponse struct {
@@ -91,7 +97,7 @@ func (nr *NewResponse) UnmarshalJSON(b []byte) error {
 // writeJSON writes a JSON response to the http.ResponseWriter
 func writeJSON(w http.ResponseWriter, status int, success bool, message string, headers map[string]string, data any) error {
 	if w == nil {
-		panic("http.ResponseWriter is nil")
+		return fmt.Errorf("http.ResponseWriter is nil")
 	}
 
 	for key, value := range headers {

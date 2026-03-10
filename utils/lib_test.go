@@ -71,13 +71,10 @@ func TestWriteJson(t *testing.T) {
 }
 
 func TestWriteJSON_NilWriter(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Expected panic when http.ResponseWriter is nil, but did not panic")
-		}
-	}()
-
-	_ = writeJSON(nil, http.StatusOK, true, "This should panic", nil, nil)
+	err := writeJSON(nil, http.StatusOK, true, "nil writer", nil, nil)
+	if err == nil {
+		t.Errorf("Expected error when http.ResponseWriter is nil, got nil")
+	}
 }
 
 func TestNewResponseBuilder(t *testing.T) {

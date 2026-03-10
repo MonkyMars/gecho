@@ -72,12 +72,34 @@ func Conflict(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Respon
 	return utils.NewErr(w, allOpts...)
 }
 
-// Too ManyRequests sends a 429 Too Many Requests response with optional configuration
+// TooManyRequests sends a 429 Too Many Requests response with optional configuration
 // Example: errors.TooManyRequests(w, gecho.WithMessage("Rate limit exceeded"), gecho.Send())
 func TooManyRequests(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusTooManyRequests),
 		utils.WithMessage(utils.TooManyRequestsMessage),
+	}
+	allOpts = append(allOpts, opts...)
+	return utils.NewErr(w, allOpts...)
+}
+
+// Gone sends a 410 Gone response with optional configuration
+// Example: errors.Gone(w, gecho.WithMessage("This resource has been permanently removed"), gecho.Send())
+func Gone(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
+	allOpts := []utils.ResponseOption{
+		utils.WithStatus(http.StatusGone),
+		utils.WithMessage(utils.GoneMessage),
+	}
+	allOpts = append(allOpts, opts...)
+	return utils.NewErr(w, allOpts...)
+}
+
+// UnprocessableEntity sends a 422 Unprocessable Entity response with optional configuration
+// Example: errors.UnprocessableEntity(w, gecho.WithData(validationErrors), gecho.Send())
+func UnprocessableEntity(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
+	allOpts := []utils.ResponseOption{
+		utils.WithStatus(http.StatusUnprocessableEntity),
+		utils.WithMessage(utils.UnprocessableEntityMessage),
 	}
 	allOpts = append(allOpts, opts...)
 	return utils.NewErr(w, allOpts...)

@@ -107,3 +107,51 @@ func TestMethodNotAllowed(t *testing.T) {
 		t.Errorf("Expected message '%s', got '%s'", utils.MethodNotAllowedMessage, response.Message())
 	}
 }
+
+func TestGone(t *testing.T) {
+	w := httptest.NewRecorder()
+	Gone(w, utils.Send())
+
+	resp := w.Result()
+	if resp.StatusCode != http.StatusGone {
+		t.Errorf("Expected status code %d, got %d", http.StatusGone, resp.StatusCode)
+	}
+
+	var response utils.NewResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	if response.Message() != utils.GoneMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.GoneMessage, response.Message())
+	}
+
+	if response.Success() {
+		t.Errorf("Expected success to be false for Gone response")
+	}
+}
+
+func TestUnprocessableEntity(t *testing.T) {
+	w := httptest.NewRecorder()
+	validationErrors := map[string]string{"email": "invalid format"}
+	UnprocessableEntity(w, utils.WithData(validationErrors), utils.Send())
+
+	resp := w.Result()
+	if resp.StatusCode != http.StatusUnprocessableEntity {
+		t.Errorf("Expected status code %d, got %d", http.StatusUnprocessableEntity, resp.StatusCode)
+	}
+
+	var response utils.NewResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	if response.Message() != utils.UnprocessableEntityMessage {
+		t.Errorf("Expected message '%s', got '%s'", utils.UnprocessableEntityMessage, response.Message())
+	}
+
+	dataMap, ok := response.Data().(map[string]any)
+	if !ok || dataMap["email"] != "invalid format" {
+		t.Errorf("Expected data map with email 'invalid format', got '%v'", response.Data())
+	}
+}
