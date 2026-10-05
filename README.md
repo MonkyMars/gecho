@@ -23,20 +23,33 @@ Gecho provides two main features:
 import "github.com/MonkyMars/gecho"
 
 func handler(w http.ResponseWriter, r *http.Request) {
-    // Success response
-    gecho.Success(w, gecho.Send())
-    
-    // Success with data
-    gecho.Success(w,
+    response := gecho.Success(w,
         gecho.WithData(map[string]any{"id": 1, "name": "Alice"}),
-        gecho.Send(),
     )
-    
-    // Error response
-    gecho.NotFound(w,
-        gecho.WithMessage("User not found"),
-        gecho.Send(),
-    )
+    if err := response.Send(); err != nil {
+        return
+    }
+}
+```
+
+Named response constructors only build and configure a response; they do not
+perform I/O and cannot return an error. `Send()` is the single operation that
+writes headers and the JSON body:
+
+```go
+response := gecho.Success(w, gecho.WithData(user), gecho.WithMessage("Loaded"))
+if err := response.Send(); err != nil {
+    return
+}
+```
+
+For fully configured one-step responses, construct and send in one expression:
+
+```go
+if err := gecho.Success(w,
+    gecho.WithData(user),
+).Send(); err != nil {
+    return
 }
 ```
 
@@ -63,7 +76,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 - `WithData(data any)` - Add data to response
 - `WithMessage(msg string)` - Override default message
 - `WithStatus(code int)` - Override default status code
-- `Send()` - Send the response immediately
+- `WithHeader(key, value)` - Add a response header
+- `WithHeaders(headers)` - Add multiple response headers
 
 ### Modifying Responses
 
@@ -81,7 +95,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
     }
     
     // Send when ready
-    resp.Send()
+    if err := resp.Send(); err != nil {
+        return
+    }
 }
 ```
 
@@ -95,10 +111,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 **Chaining:**
 
 ```go
-gecho.Created(w, gecho.WithData(user)).
+response := gecho.Created(w, gecho.WithData(user))
+if err := response.
     SetMessage("User created and email sent").
     AddData("email_sent", true).
-    Send()
+    Send(); err != nil {
+    return
+}
 ```
 
 ### Response Format
@@ -114,6 +133,9 @@ All responses return this JSON structure:
   "timestamp": "2024-01-15T10:30:45.123Z"
 }
 ```
+
+`NoContent(w, ...)` sends HTTP 204 without a response body, as required by the
+HTTP protocol.
 
 ## Logger
 
@@ -252,7 +274,9 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
     // Create response and modify before sending
     resp := gecho.Success(w, gecho.WithData(map[string]any{"users": users}))
     resp.AddData("count", len(users))
-    resp.Send()
+    if err := resp.Send(); err != nil {
+        return
+    }
 }
 ```
 

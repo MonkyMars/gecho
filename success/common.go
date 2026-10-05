@@ -6,8 +6,7 @@ import (
 	"github.com/MonkyMars/gecho/utils"
 )
 
-// Success sends a 200 OK response with optional configuration
-// Example: success.Success(w, gecho.WithData(userData), gecho.Send())
+// Success creates a 200 OK response with optional configuration.
 func Success(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusOK),
@@ -17,8 +16,7 @@ func Success(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Respons
 	return utils.NewOK(w, allOpts...)
 }
 
-// Created sends a 201 Created response with optional configuration
-// Example: success.Created(w, gecho.WithData(newResource), gecho.Send())
+// Created creates a 201 Created response with optional configuration.
 func Created(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusCreated),
@@ -28,8 +26,7 @@ func Created(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Respons
 	return utils.NewOK(w, allOpts...)
 }
 
-// Accepted sends a 202 Accepted response with optional configuration
-// Example: success.Accepted(w, gecho.WithMessage("Request accepted for processing"), gecho.Send())
+// Accepted creates a 202 Accepted response with optional configuration.
 func Accepted(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusAccepted),
@@ -39,8 +36,7 @@ func Accepted(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Respon
 	return utils.NewOK(w, allOpts...)
 }
 
-// NoContent sends a 204 No Content response with optional configuration
-// Example: success.NoContent(w, gecho.Send())
+// NoContent creates a 204 No Content response with optional configuration.
 func NoContent(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusNoContent),

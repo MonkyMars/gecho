@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"bufio"
 	"fmt"
+	"net"
 	"net/http"
 	"time"
 
@@ -17,7 +19,9 @@ func NewHandlers() *Handlers {
 
 func (h *Handlers) HandleMethod(w http.ResponseWriter, r *http.Request, intendedMethod string) error {
 	if r.Method != intendedMethod {
-		errors.MethodNotAllowed(w, utils.Send(), utils.WithMessage(fmt.Sprintf("Method %s not allowed", r.Method)))
+		if err := errors.MethodNotAllowed(w, utils.WithMessage(fmt.Sprintf("Method %s not allowed", r.Method))).Send(); err != nil {
+			return err
+		}
 		return fmt.Errorf("method %s not allowed", r.Method)
 	}
 	return nil
@@ -69,10 +73,53 @@ func (h *Handlers) HandleLogging(next http.Handler, logger *utils.Logger) http.H
 // responseWriter is a wrapper to capture the status code
 type responseWriter struct {
 	http.ResponseWriter
-	statusCode int
+	statusCode  int
+	wroteHeader bool
 }
 
 func (rw *responseWriter) WriteHeader(code int) {
+	if rw.wroteHeader {
+		return
+	}
 	rw.statusCode = code
+	rw.wroteHeader = true
 	rw.ResponseWriter.WriteHeader(code)
+}
+
+func (rw *responseWriter) Write(body []byte) (int, error) {
+	if rw.statusCode == http.StatusOK {
+		rw.WriteHeader(http.StatusOK)
+	}
+	return rw.ResponseWriter.Write(body)
+}
+
+func (rw *responseWriter) Unwrap() http.ResponseWriter {
+	return rw.ResponseWriter
+}
+
+func (rw *responseWriter) Flush() {
+	flusher, ok := rw.ResponseWriter.(http.Flusher)
+	if !ok {
+		return
+	}
+	if rw.statusCode == http.StatusOK {
+		rw.WriteHeader(http.StatusOK)
+	}
+	flusher.Flush()
+}
+
+func (rw *responseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	hijacker, ok := rw.ResponseWriter.(http.Hijacker)
+	if !ok {
+		return nil, nil, fmt.Errorf("http.ResponseWriter does not support hijacking")
+	}
+	return hijacker.Hijack()
+}
+
+func (rw *responseWriter) Push(target string, opts *http.PushOptions) error {
+	pusher, ok := rw.ResponseWriter.(http.Pusher)
+	if !ok {
+		return http.ErrNotSupported
+	}
+	return pusher.Push(target, opts)
 }

@@ -25,7 +25,7 @@ var users = map[int]User{
 	1: {ID: 1, Username: "alice", Email: "alice@example.com"},
 	2: {ID: 2, Username: "bob", Email: "bob@example.com"},
 }
-var nextID = 3
+var nextID = len(users) + 1
 
 var logger *gecho.Logger
 
@@ -63,14 +63,15 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gecho.Success(w,
+	if err := gecho.Success(w,
 		gecho.WithData(map[string]string{
 			"status":  "healthy",
 			"version": "1.0.0",
 		}),
 		gecho.WithMessage("Health check passed"),
-		gecho.Send(),
-	)
+	).Send(); err != nil {
+		logger.Error("send health response", gecho.Field("error", err))
+	}
 }
 
 // List all users or create a new user
@@ -81,10 +82,11 @@ func usersHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		createUser(w, r)
 	default:
-		gecho.MethodNotAllowed(w,
+		if err := gecho.MethodNotAllowed(w,
 			gecho.WithMessage(fmt.Sprintf("Method %s not allowed", r.Method)),
-			gecho.Send(),
-		)
+		).Send(); err != nil {
+			logger.Error("send method error", gecho.Field("error", err))
+		}
 	}
 }
 
@@ -101,17 +103,23 @@ func listUsers(w http.ResponseWriter) {
 		"users": userList,
 		"count": len(userList),
 	}
-	gecho.Success(w).SetData(responseData).SetMessage("Users retrieved successfully").Send()
+	if err := gecho.Success(w,
+		gecho.WithData(responseData),
+		gecho.WithMessage("Users retrieved successfully"),
+	).Send(); err != nil {
+		logger.Error("send response", gecho.Field("error", err))
+	}
 }
 
 // Create a new user
 func createUser(w http.ResponseWriter, r *http.Request) {
 	var req CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		gecho.BadRequest(w,
+		if err := gecho.BadRequest(w,
 			gecho.WithMessage("Invalid request body"),
-			gecho.Send(),
-		)
+		).Send(); err != nil {
+			logger.Error("send request error", gecho.Field("error", err))
+		}
 		return
 	}
 
@@ -125,21 +133,23 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(validationErrors) > 0 {
-		gecho.BadRequest(w,
+		if err := gecho.BadRequest(w,
 			gecho.WithMessage("Validation failed"),
 			gecho.WithData(validationErrors),
-			gecho.Send(),
-		)
+		).Send(); err != nil {
+			logger.Error("send validation error", gecho.Field("error", err))
+		}
 		return
 	}
 
 	// Check if user already exists
 	for _, user := range users {
 		if user.Email == req.Email {
-			gecho.Conflict(w,
+			if err := gecho.Conflict(w,
 				gecho.WithMessage("User with this email already exists"),
-				gecho.Send(),
-			)
+			).Send(); err != nil {
+				logger.Error("send conflict error", gecho.Field("error", err))
+			}
 			return
 		}
 	}
@@ -153,11 +163,12 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	users[nextID] = newUser
 	nextID++
 
-	gecho.Created(w,
+	if err := gecho.Created(w,
 		gecho.WithData(newUser),
 		gecho.WithMessage("User created successfully"),
-		gecho.Send(),
-	)
+	).Send(); err != nil {
+		logger.Error("send created response", gecho.Field("error", err))
+	}
 }
 
 // Get user by ID
@@ -171,25 +182,28 @@ func userByIDHandler(w http.ResponseWriter, r *http.Request) {
 	var id int
 	_, err := fmt.Sscanf(r.URL.Path, "/users/%d", &id)
 	if err != nil {
-		gecho.BadRequest(w,
+		if err := gecho.BadRequest(w,
 			gecho.WithMessage("Invalid user ID"),
-			gecho.Send(),
-		)
+		).Send(); err != nil {
+			logger.Error("send user ID error", gecho.Field("error", err))
+		}
 		return
 	}
 
 	// Find user
 	user, exists := users[id]
 	if !exists {
-		gecho.NotFound(w,
+		if err := gecho.NotFound(w,
 			gecho.WithMessage(fmt.Sprintf("User with ID %d not found", id)),
-			gecho.Send(),
-		)
+		).Send(); err != nil {
+			logger.Error("send not found error", gecho.Field("error", err))
+		}
 		return
 	}
 
-	gecho.Success(w,
+	if err := gecho.Success(w,
 		gecho.WithData(user),
-		gecho.Send(),
-	)
+	).Send(); err != nil {
+		logger.Error("send user response", gecho.Field("error", err))
+	}
 }

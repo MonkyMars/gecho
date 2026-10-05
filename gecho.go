@@ -17,11 +17,6 @@ var WithMessage = utils.WithMessage
 var WithStatus = utils.WithStatus
 var WithHeader = utils.WithHeader
 var WithHeaders = utils.WithHeaders
-var Send = utils.Send
-
-// Exported fluent API Functions
-var NewErr = utils.NewErr
-var NewOK = utils.NewOK
 
 // Exported Client Error Functions
 var BadRequest = errors.BadRequest
@@ -39,6 +34,8 @@ var ServiceUnavailable = errors.ServiceUnavailable
 // Exported Success Functions
 var Success = success.Success
 var Created = success.Created
+var Accepted = success.Accepted
+var NoContent = success.NoContent
 
 // Exported built-in handlers
 var Handlers = handlers.NewHandlers()

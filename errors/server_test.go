@@ -11,7 +11,9 @@ import (
 
 func TestInternalServerError(t *testing.T) {
 	w := httptest.NewRecorder()
-	InternalServerError(w, utils.Send())
+	if err := InternalServerError(w).Send(); err != nil {
+		t.Fatal(err)
+	}
 
 	resp := w.Result()
 	if resp.StatusCode != http.StatusInternalServerError {
@@ -30,7 +32,9 @@ func TestInternalServerError(t *testing.T) {
 
 func TestServiceUnavailable(t *testing.T) {
 	w := httptest.NewRecorder()
-	ServiceUnavailable(w, utils.Send())
+	if err := ServiceUnavailable(w).Send(); err != nil {
+		t.Fatal(err)
+	}
 
 	resp := w.Result()
 	if resp.StatusCode != http.StatusServiceUnavailable {

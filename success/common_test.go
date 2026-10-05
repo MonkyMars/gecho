@@ -2,6 +2,7 @@ package success
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -45,11 +46,24 @@ func TestCorrectSuccessResponses(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			tt.fn(w, utils.Send())
+			if err := tt.fn(w).Send(); err != nil {
+				t.Fatal(err)
+			}
 
 			resp := w.Result()
 			if resp.StatusCode != tt.expectedStatus {
 				t.Errorf("Expected status code %d, got %d", tt.expectedStatus, resp.StatusCode)
+			}
+
+			if tt.expectedStatus == http.StatusNoContent {
+				body, err := io.ReadAll(resp.Body)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if len(body) != 0 {
+					t.Errorf("Expected empty body for 204 response, got %d bytes", len(body))
+				}
+				return
 			}
 
 			var response utils.NewResponse

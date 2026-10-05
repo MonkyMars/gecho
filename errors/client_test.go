@@ -11,7 +11,9 @@ import (
 
 func TestBadRequest(t *testing.T) {
 	w := httptest.NewRecorder()
-	BadRequest(w, utils.WithData(map[string]string{"field": "invalid"}), utils.Send())
+	if err := BadRequest(w, utils.WithData(map[string]string{"field": "invalid"})).Send(); err != nil {
+		t.Fatal(err)
+	}
 
 	resp := w.Result()
 	if resp.StatusCode != http.StatusBadRequest {
@@ -34,7 +36,9 @@ func TestBadRequest(t *testing.T) {
 
 func TestUnauthorized(t *testing.T) {
 	w := httptest.NewRecorder()
-	Unauthorized(w, utils.Send())
+	if err := Unauthorized(w).Send(); err != nil {
+		t.Fatal(err)
+	}
 
 	resp := w.Result()
 	if resp.StatusCode != http.StatusUnauthorized {
@@ -53,7 +57,9 @@ func TestUnauthorized(t *testing.T) {
 
 func TestForbidden(t *testing.T) {
 	w := httptest.NewRecorder()
-	Forbidden(w, utils.Send())
+	if err := Forbidden(w).Send(); err != nil {
+		t.Fatal(err)
+	}
 
 	resp := w.Result()
 	if resp.StatusCode != http.StatusForbidden {
@@ -72,7 +78,9 @@ func TestForbidden(t *testing.T) {
 
 func TestNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
-	NotFound(w, utils.Send())
+	if err := NotFound(w).Send(); err != nil {
+		t.Fatal(err)
+	}
 
 	resp := w.Result()
 	if resp.StatusCode != http.StatusNotFound {
@@ -91,7 +99,9 @@ func TestNotFound(t *testing.T) {
 
 func TestMethodNotAllowed(t *testing.T) {
 	w := httptest.NewRecorder()
-	MethodNotAllowed(w, utils.Send())
+	if err := MethodNotAllowed(w).Send(); err != nil {
+		t.Fatal(err)
+	}
 
 	resp := w.Result()
 	if resp.StatusCode != http.StatusMethodNotAllowed {
@@ -105,5 +115,35 @@ func TestMethodNotAllowed(t *testing.T) {
 
 	if response.Message() != utils.MethodNotAllowedMessage {
 		t.Errorf("Expected message '%s', got '%s'", utils.MethodNotAllowedMessage, response.Message())
+	}
+}
+
+func TestAdditionalClientErrors(t *testing.T) {
+	tests := []struct {
+		name string
+		fn   func(http.ResponseWriter, ...utils.ResponseOption) *utils.Response
+		code int
+		msg  string
+	}{
+		{"Conflict", Conflict, http.StatusConflict, utils.ConflictMessage},
+		{"TooManyRequests", TooManyRequests, http.StatusTooManyRequests, utils.TooManyRequestsMessage},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			if err := tt.fn(w).Send(); err != nil {
+				t.Fatal(err)
+			}
+			if w.Code != tt.code {
+				t.Errorf("status = %d, want %d", w.Code, tt.code)
+			}
+			var response utils.NewResponse
+			if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+				t.Fatal(err)
+			}
+			if response.Message() != tt.msg || response.Success() {
+				t.Errorf("response = message %q success %v", response.Message(), response.Success())
+			}
+		})
 	}
 }

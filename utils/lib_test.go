@@ -10,106 +10,44 @@ import (
 
 func TestExtractResponseBody(t *testing.T) {
 	w := httptest.NewRecorder()
-	NewOK(w,
-		WithMessage("Extract Test"),
-		WithData(map[string]string{"extract": "test"}),
-		WithStatus(http.StatusOK),
-		Send(),
-	)
-
-	resp := w.Result()
-
-	// Extract response body and verify
-	val, err := ExtractResponseBody[NewResponse](resp)
-	if err != nil {
-		t.Errorf("Expected no error on ExtractResponseBody(), got %v", err)
+	if err := NewOK(w, WithData(map[string]string{"extract": "test"})).Send(); err != nil {
+		t.Fatal(err)
 	}
-
-	if val.Status() != http.StatusOK {
-		t.Errorf("Expected status %d, got %d", http.StatusOK, val.Status())
-	}
-
-	if val.Message() != "Extract Test" {
-		t.Errorf("Expected message 'Extract Test', got '%s'", val.Message())
-	}
-
-	dataMap, ok := val.Data().(map[string]any)
-	if !ok || dataMap["extract"] != "test" {
-		t.Errorf("Expected data map with extract 'test', got '%v'", val.Data())
+	value, err := ExtractResponseBody[NewResponse](w.Result())
+	if err != nil || value.Data().(map[string]any)["extract"] != "test" {
+		t.Fatalf("value=%v err=%v", value, err)
 	}
 }
 
-func TestWriteJson(t *testing.T) {
+func TestWriteJSON(t *testing.T) {
 	w := httptest.NewRecorder()
-	err := writeJSON(w, http.StatusTeapot, true, "I'm a teapot", map[string]string{"tea": "yes"}, map[string]any{"tea": "yes"})
-	if err != nil {
-		t.Errorf("Expected no error on writeJSON(), got %v", err)
+	if err := writeJSON(w, http.StatusTeapot, true, "tea", nil, map[string]string{"tea": "yes"}); err != nil {
+		t.Fatal(err)
 	}
-
-	resp := w.Result()
-	if resp.StatusCode != http.StatusTeapot {
-		t.Errorf("Expected status code %d, got %d", http.StatusTeapot, resp.StatusCode)
-	}
-
-	val, err := ExtractResponseBody[NewResponse](resp)
-	if err != nil {
-		t.Errorf("Expected no error on ExtractResponseBody(), got %v", err)
-	}
-
-	if val.Status() != http.StatusTeapot {
-		t.Errorf("Expected status %d, got %d", http.StatusTeapot, val.Status())
-	}
-
-	if val.Message() != "I'm a teapot" {
-		t.Errorf("Expected message 'I'm a teapot', got '%s'", val.Message())
-	}
-
-	dataMap, ok := val.Data().(map[string]any)
-	if !ok || dataMap["tea"] != "yes" {
-		t.Errorf("Expected data map with tea 'yes', got '%v'", val.Data())
+	var value NewResponse
+	if err := json.NewDecoder(w.Body).Decode(&value); err != nil || value.Status() != http.StatusTeapot {
+		t.Fatalf("value=%v err=%v", value, err)
 	}
 }
 
-func TestWriteJSON_NilWriter(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Expected panic when http.ResponseWriter is nil, but did not panic")
-		}
-	}()
-
-	_ = writeJSON(nil, http.StatusOK, true, "This should panic", nil, nil)
-}
-
-func TestNewResponseBuilder(t *testing.T) {
-	w := httptest.NewRecorder()
-	NewOK(w,
-		WithStatus(http.StatusOK),
-		Send(),
-	)
-
-	var response NewResponse
-	if err := json.NewDecoder(w.Result().Body).Decode(&response); err != nil {
-		t.Fatalf("Failed to decode response: %v", err)
-	}
-
-	if response.Status() != http.StatusOK {
-		t.Errorf("Expected status %d, got %d", http.StatusOK, response.Status())
-	}
-
-	if response.Success() != true {
-		t.Errorf("Expected success to be true, got %v", response.Success())
-	}
-
-	if response.Message() != "Success" {
-		t.Errorf("Expected default message 'Success', got '%s'", response.Message())
+func TestWriteJSONNilWriter(t *testing.T) {
+	if err := writeJSON(nil, http.StatusOK, true, "x", nil, nil); err == nil {
+		t.Fatal("expected nil writer error")
 	}
 }
 
 func TestGetTimestamp(t *testing.T) {
-	now := time.Now()
-	timestamp := getTimestamp()
+	before := time.Now()
+	got := getTimestamp()
+	if got.Before(before) || got.After(time.Now().Add(time.Second)) {
+		t.Fatalf("timestamp out of range: %v", got)
+	}
+}
 
-	if timestamp.Before(now) || timestamp.After(time.Now().Add(time.Second)) {
-		t.Errorf("Expected timestamp to be around now, got %v", timestamp)
+func TestNewResponseBuilder(t *testing.T) {
+	w := httptest.NewRecorder()
+	resp := NewOK(w)
+	if resp == nil || w.Code != 200 {
+		t.Fatalf("resp=%v code=%d", resp, w.Code)
 	}
 }

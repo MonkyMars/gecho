@@ -1,8 +1,6 @@
 package utils
 
-import (
-	"net/http"
-)
+import "net/http"
 
 // Response represents an HTTP response that can be modified before sending
 type Response struct {
@@ -24,7 +22,6 @@ type responseConfig struct {
 	success bool
 	message string
 	data    any
-	send    bool
 	headers map[string]string
 }
 
@@ -62,13 +59,6 @@ func WithHeaders(headers map[string]string) ResponseOption {
 		for key, value := range headers {
 			rc.headers[key] = value
 		}
-	}
-}
-
-// Send marks the response to be sent immediately
-func Send() ResponseOption {
-	return func(rc *responseConfig) {
-		rc.send = true
 	}
 }
 
@@ -158,7 +148,6 @@ func buildResponse(w http.ResponseWriter, defaultStatus int, isError bool, defau
 		success: success,
 		message: defaultMessage,
 		data:    nil,
-		send:    false,
 		headers: make(map[string]string),
 	}
 
@@ -179,12 +168,6 @@ func buildResponse(w http.ResponseWriter, defaultStatus int, isError bool, defau
 
 	// Set data as-is
 	resp.data = config.data
-
-	// Auto-send if Send() option was provided
-	if config.send {
-		resp.Send()
-		return nil
-	}
 
 	return resp
 }

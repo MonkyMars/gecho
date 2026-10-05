@@ -6,8 +6,7 @@ import (
 	"github.com/MonkyMars/gecho/utils"
 )
 
-// BadRequest sends a 400 Bad Request response with optional configuration
-// Example: errors.BadRequest(w, gecho.WithData(validationErrors), gecho.Send())
+// BadRequest creates a 400 Bad Request response with optional configuration.
 func BadRequest(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusBadRequest),
@@ -17,8 +16,7 @@ func BadRequest(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Resp
 	return utils.NewErr(w, allOpts...)
 }
 
-// Unauthorized sends a 401 Unauthorized response with optional configuration
-// Example: errors.Unauthorized(w, gecho.Send())
+// Unauthorized creates a 401 Unauthorized response with optional configuration.
 func Unauthorized(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusUnauthorized),
@@ -28,8 +26,7 @@ func Unauthorized(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Re
 	return utils.NewErr(w, allOpts...)
 }
 
-// Forbidden sends a 403 Forbidden response with optional configuration
-// Example: errors.Forbidden(w, gecho.WithMessage("Access denied"), gecho.Send())
+// Forbidden creates a 403 Forbidden response with optional configuration.
 func Forbidden(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusForbidden),
@@ -39,8 +36,7 @@ func Forbidden(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Respo
 	return utils.NewErr(w, allOpts...)
 }
 
-// NotFound sends a 404 Not Found response with optional configuration
-// Example: errors.NotFound(w, gecho.Send())
+// NotFound creates a 404 Not Found response with optional configuration.
 func NotFound(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusNotFound),
@@ -50,8 +46,7 @@ func NotFound(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Respon
 	return utils.NewErr(w, allOpts...)
 }
 
-// MethodNotAllowed sends a 405 Method Not Allowed response with optional configuration
-// Example: errors.MethodNotAllowed(w, gecho.Send())
+// MethodNotAllowed creates a 405 Method Not Allowed response with optional configuration.
 func MethodNotAllowed(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusMethodNotAllowed),
@@ -61,8 +56,7 @@ func MethodNotAllowed(w http.ResponseWriter, opts ...utils.ResponseOption) *util
 	return utils.NewErr(w, allOpts...)
 }
 
-// Conflict sends a 409 Conflict response with optional configuration
-// Example: errors.Conflict(w, gecho.WithMessage("Resource already exists"), gecho.Send())
+// Conflict creates a 409 Conflict response with optional configuration.
 func Conflict(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusConflict),
@@ -72,8 +66,7 @@ func Conflict(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Respon
 	return utils.NewErr(w, allOpts...)
 }
 
-// Too ManyRequests sends a 429 Too Many Requests response with optional configuration
-// Example: errors.TooManyRequests(w, gecho.WithMessage("Rate limit exceeded"), gecho.Send())
+// TooManyRequests creates a 429 Too Many Requests response with optional configuration.
 func TooManyRequests(w http.ResponseWriter, opts ...utils.ResponseOption) *utils.Response {
 	allOpts := []utils.ResponseOption{
 		utils.WithStatus(http.StatusTooManyRequests),
