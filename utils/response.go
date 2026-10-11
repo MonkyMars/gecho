@@ -1,6 +1,9 @@
 package utils
 
-import "net/http"
+import (
+	"maps"
+	"net/http"
+)
 
 // Response represents an HTTP response that can be modified before sending
 type Response struct {
@@ -49,7 +52,7 @@ func WithStatus(status int) ResponseOption {
 // WithHeader adds a header to the response
 func WithHeader(key, value string) ResponseOption {
 	return func(rc *responseConfig) {
-		rc.headers[key] = value
+		maps.Copy(rc.headers, map[string]string{key: value})
 	}
 }
 
@@ -57,7 +60,7 @@ func WithHeader(key, value string) ResponseOption {
 func WithHeaders(headers map[string]string) ResponseOption {
 	return func(rc *responseConfig) {
 		for key, value := range headers {
-			rc.headers[key] = value
+			maps.Copy(rc.headers, map[string]string{key: value})
 		}
 	}
 }
