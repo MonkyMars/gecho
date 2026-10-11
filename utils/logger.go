@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"maps"
 	"os"
 	"runtime"
@@ -463,10 +465,18 @@ func (l *Logger) Debug(args ...any) {
 	l.log(LevelDebug, msg, opts)
 }
 
+func (l *Logger) DebugContext(ctx context.Context, args ...any) {
+	l.logContext(ctx, slog.LevelDebug, args...)
+}
+
 // Info logs an info level message
 func (l *Logger) Info(args ...any) {
 	msg, opts := parseArgs(args...)
 	l.log(LevelInfo, msg, opts)
+}
+
+func (l *Logger) InfoContext(ctx context.Context, args ...any) {
+	l.logContext(ctx, slog.LevelInfo, args...)
 }
 
 // Warn logs a warning level message
@@ -475,16 +485,43 @@ func (l *Logger) Warn(args ...any) {
 	l.log(LevelWarn, msg, opts)
 }
 
+func (l *Logger) WarnContext(ctx context.Context, args ...any) {
+	l.logContext(ctx, slog.LevelWarn, args...)
+}
+
 // Error logs an error level message
 func (l *Logger) Error(args ...any) {
 	msg, opts := parseArgs(args...)
 	l.log(LevelError, msg, opts)
 }
 
+func (l *Logger) ErrorContext(ctx context.Context, args ...any) {
+	l.logContext(ctx, slog.LevelError, args...)
+}
+
 // Fatal logs a fatal level message and exits the program
 func (l *Logger) Fatal(args ...any) {
 	msg, opts := parseArgs(args...)
 	l.log(LevelFatal, msg, opts)
+}
+
+// Slog returns a standard-library slog logger backed by this logger's output
+// and formatting configuration.
+func (l *Logger) Slog() *slog.Logger {
+	return slog.New(&slogHandler{logger: l})
+}
+
+func (l *Logger) logContext(ctx context.Context, level slog.Level, args ...any) {
+	msg, opts := parseArgs(args...)
+	attrs := make([]slog.Attr, 0, len(opts))
+	for _, opt := range opts {
+		options := entryOptions{}
+		opt(&options)
+		for _, field := range options.fields {
+			attrs = append(attrs, slog.Any(field.Key, field.Value))
+		}
+	}
+	l.Slog().LogAttrs(ctx, level, msg, attrs...)
 }
 
 // isTerminal checks if the writer is a terminal

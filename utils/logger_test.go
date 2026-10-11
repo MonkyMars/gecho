@@ -2,7 +2,9 @@ package utils
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"log/slog"
 	"strings"
 	"testing"
 )
@@ -189,5 +191,44 @@ func TestLoggerSettersAndCallerOption(t *testing.T) {
 func TestNewDefaultLogger(t *testing.T) {
 	if logger := NewDefaultLogger(); logger == nil {
 		t.Fatal("NewDefaultLogger returned nil")
+	}
+}
+
+func TestContextLoggingAndSlogEscapeHatch(t *testing.T) {
+	var output bytes.Buffer
+	logger := NewLogger(NewConfig(
+		WithLogFormat(FormatJSON),
+		WithShowCaller(false),
+		WithOutput(&output),
+	))
+
+	logger.InfoContext(context.Background(), "context message", Field("request_id", "abc"))
+	slogLogger := logger.Slog().With("component", "worker")
+	slogLogger.Info("slog message", slog.Int("attempt", 2))
+
+	lines := strings.Split(strings.TrimSpace(output.String()), "\n")
+	if len(lines) != 2 {
+		t.Fatalf("got %d log lines, want 2: %q", len(lines), output.String())
+	}
+	for _, line := range lines {
+		var entry struct {
+			Message string         `json:"message"`
+			Fields  map[string]any `json:"fields"`
+		}
+		if err := json.Unmarshal([]byte(line), &entry); err != nil {
+			t.Fatal(err)
+		}
+		switch entry.Message {
+		case "context message":
+			if entry.Fields["request_id"] != "abc" {
+				t.Fatalf("context field missing: %#v", entry.Fields)
+			}
+		case "slog message":
+			if entry.Fields["component"] != "worker" || entry.Fields["attempt"] != float64(2) {
+				t.Fatalf("slog fields missing: %#v", entry.Fields)
+			}
+		default:
+			t.Fatalf("unexpected message: %q", entry.Message)
+		}
 	}
 }
